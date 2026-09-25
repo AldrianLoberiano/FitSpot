@@ -62,7 +62,19 @@
         </div>
 
         <div class="hero-media">
-            <img src="images/jogging.jpg" alt="Man running on a treadmill at the gym">
+            <div class="hero-carousel" id="hero-carousel">
+                <div class="hero-slide is-active">
+                    <img src="images/jogging.jpg" alt="Man running on a treadmill at the gym">
+                </div>
+                <div class="hero-slide">
+                    <img src="images/rope.jpg" alt="Man training with battle ropes">
+                </div>
+            </div>
+
+            <div class="hero-dots">
+                <button type="button" class="hero-dot is-active" data-slide="0" aria-label="Show slide 1"></button>
+                <button type="button" class="hero-dot" data-slide="1" aria-label="Show slide 2"></button>
+            </div>
         </div>
     </div>
 </section>

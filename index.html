@@ -180,19 +180,26 @@
     <div class="modal auth-card" role="dialog" aria-modal="true" aria-labelledby="login-popup-title">
         <button class="modal-close" type="button" aria-label="Close">&times;</button>
 
-        <h2 id="login-popup-title">Login</h2>
+        <div class="modal-brand">
+            <img src="images/fitstop_white_logo.png" alt="FitSpot">
+            <p>Gym Membership &amp; Class Booking</p>
+        </div>
 
-        <form>
-            <label for="popup-email">Email:</label>
-            <input type="email" id="popup-email" name="popup-email" autocomplete="email">
+        <div class="modal-body">
+            <h2 id="login-popup-title">Login</h2>
 
-            <label for="popup-password">Password:</label>
-            <input type="password" id="popup-password" name="popup-password" autocomplete="current-password">
+            <form>
+                <label for="popup-email">Email:</label>
+                <input type="email" id="popup-email" name="popup-email" autocomplete="email">
 
-            <button type="submit">Login</button>
-        </form>
+                <label for="popup-password">Password:</label>
+                <input type="password" id="popup-password" name="popup-password" autocomplete="current-password">
 
-        <p class="card-note">Don't have an account? <a href="#register-popup" class="modal-switch">Register</a></p>
+                <button type="submit">Login</button>
+            </form>
+
+            <p class="card-note">Don't have an account? <a href="#register-popup" class="modal-switch">Register</a></p>
+        </div>
     </div>
 </div>
 
@@ -200,25 +207,32 @@
     <div class="modal auth-card" role="dialog" aria-modal="true" aria-labelledby="register-popup-title">
         <button class="modal-close" type="button" aria-label="Close">&times;</button>
 
-        <h2 id="register-popup-title">Register</h2>
+        <div class="modal-brand">
+            <img src="images/fitstop_white_logo.png" alt="FitSpot">
+            <p>Gym Membership &amp; Class Booking</p>
+        </div>
 
-        <form>
-            <label for="popup-name">Full Name:</label>
-            <input type="text" id="popup-name" name="popup-name" autocomplete="name">
+        <div class="modal-body">
+            <h2 id="register-popup-title">Register</h2>
 
-            <label for="popup-reg-email">Email:</label>
-            <input type="email" id="popup-reg-email" name="popup-reg-email" autocomplete="email">
+            <form>
+                <label for="popup-name">Full Name:</label>
+                <input type="text" id="popup-name" name="popup-name" autocomplete="name">
 
-            <label for="popup-reg-password">Password:</label>
-            <input type="password" id="popup-reg-password" name="popup-reg-password" autocomplete="new-password">
+                <label for="popup-reg-email">Email:</label>
+                <input type="email" id="popup-reg-email" name="popup-reg-email" autocomplete="email">
 
-            <label for="popup-confirm-password">Confirm Password:</label>
-            <input type="password" id="popup-confirm-password" name="popup-confirm-password" autocomplete="new-password">
+                <label for="popup-reg-password">Password:</label>
+                <input type="password" id="popup-reg-password" name="popup-reg-password" autocomplete="new-password">
 
-            <button type="submit">Register</button>
-        </form>
+                <label for="popup-confirm-password">Confirm Password:</label>
+                <input type="password" id="popup-confirm-password" name="popup-confirm-password" autocomplete="new-password">
 
-        <p class="card-note">Already have an account? <a href="#login-popup" class="modal-switch">Login</a></p>
+                <button type="submit">Register</button>
+            </form>
+
+            <p class="card-note">Already have an account? <a href="#login-popup" class="modal-switch">Login</a></p>
+        </div>
     </div>
 </div>
 

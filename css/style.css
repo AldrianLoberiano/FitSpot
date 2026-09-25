@@ -50,8 +50,45 @@ header .brand img {
     border: 0;
 }
 
-header .header-spacer {
-    justify-self: stretch;
+header .header-actions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search input {
+    width: 170px;
+    padding: 9px 15px;
+    border: 1px solid #334155;
+    border-radius: 20px;
+    background-color: #1e293b;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+.search input::placeholder {
+    color: #94a3b8;
+}
+
+.search input:focus {
+    border-color: #f97316;
+}
+
+.login-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    text-decoration: none;
+    padding: 9px 15px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.login-link:hover {
+    background-color: #f97316;
 }
 
 header h1 {

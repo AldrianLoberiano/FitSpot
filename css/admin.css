@@ -46,8 +46,11 @@
 .sidebar-menu {
     display: flex;
     flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    flex: none;
     gap: 4px;
-    flex: 1;
+    margin-top: 4px;
 }
 
 .sidebar-menu button {
@@ -78,6 +81,7 @@
 
 .sidebar-link {
     display: block;
+    margin-top: auto;
     padding: 12px 14px;
     color: #94a3b8;
     font-size: 14px;

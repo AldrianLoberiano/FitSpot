@@ -36,26 +36,32 @@ The website is simple and manageable to develop but still has enough features fo
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 1 | User registration and login | Not started | Login/Register popup (index.html) and standalone page `pages/login.html` exist, but no validation, sessions, or backend yet |
-| 2 | View membership plans, prices, and inclusions | Partial | Static plans shown (Basic ₱999, Premium ₱1,499) - data is hardcoded, not editable |
-| 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Partial | Zumba, Yoga, and Strength Training are listed; **Pilates and Boxing are still missing** |
-| 4 | View available dates, times, and slots | Partial | Static schedule list only; slots are hardcoded and do not update |
-| 5 | Book or cancel a class | Not started | Booking and cancel buttons/forms exist but have no functionality |
+| 1 | User registration and login | Partial | Login popup + `pages/login.html` with demo admin login (`admin@fitspot.com` / `admin123`), session flag, and admin page guard; Register is UI-only, no backend/member accounts |
+| 2 | View membership plans, prices, and inclusions | Partial | Plans shown on the site (Basic ₱999, Premium ₱1,499); admin can add/edit/delete them in-session (not saved after refresh) |
+| 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Partial | Zumba, Yoga, and Strength Training listed on the site; **Pilates and Boxing still missing** (admin can add them in the panel) |
+| 4 | View available dates, times, and slots | Partial | Site schedule is static; admin panel shows per-class slot usage bars (booked/capacity) |
+| 5 | Book or cancel a class | Not started | Booking/cancel buttons and forms exist but have no functionality |
 | 6 | View upcoming bookings | Not started | "My Bookings" section shows placeholder text only |
-| 7 | Admin: add, edit, remove membership plans and classes | Partial | Admin UI built (`pages/admin/dashboard.html`) with working add/edit/delete - no backend storage yet |
-| 8 | Admin: manage schedules, members, and reservations | Partial | Admin UI built with tables, confirm/cancel actions - no backend storage yet |
-| 9 | Monitor available slots to avoid overbooking | Not started | Requires booking logic + slot counters |
+| 7 | Admin: add, edit, remove membership plans and classes | Partial | Working client-side add/edit/delete with modal forms in `pages/admin/dashboard.html` - no database persistence yet |
+| 8 | Admin: manage schedules, members, and reservations | Partial | Admin tables with delete, confirm/cancel actions - no database persistence yet |
+| 9 | Monitor available slots to avoid overbooking | Partial | Admin slot usage bars with Open/Full status; not yet enforced during booking |
 
 ### Completed So Far
 
 - Site layout and styling (HTML/CSS) - home page, sections, forms, footer
-- Header with title on the left and centered navigation menu
+- Header with logo on the left, centered navigation, search bar, and login button (right)
+- Sticky responsive header
+- Full-screen responsive hero with badge, headline, CTAs, and stats
+- Automatic image carousel in the hero (3 slides, dots, 3-second autoplay)
+- Login/Register popup with branding panel and demo admin credentials
+- Admin panel: sidebar tabs, dashboard stats, plans/classes CRUD (client-side), schedules with slot bars, members, reservations (confirm/cancel), avatar menu (Profile, Settings, Logout)
+- Feature-folder structure (`css/`, `js/`, `images/`, `pages/admin/`, `pages/users/`)
 
 ## Tech Stack (Current)
 
 - HTML5
 - CSS3
-- JavaScript (modal interactions)
+- JavaScript (login demo, modals, hero carousel, admin panel)
 
 _Planned: a backend/database for accounts, bookings, and admin CRUD._
 

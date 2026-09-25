@@ -137,26 +137,117 @@ nav a:hover {
         flex-wrap: wrap;
         justify-content: center;
     }
+
+    .hero {
+        padding: 60px 20px;
+    }
+
+    .hero-stats {
+        gap: 25px;
+    }
+
+    .hero-stats strong {
+        font-size: 24px;
+    }
 }
 
 /* ===== HERO SECTION ===== */
 
-main > section:first-child {
+.hero {
+    position: relative;
+    overflow: hidden;
     text-align: center;
-    padding: 70px 20px;
-    background-color: white;
+    padding: 90px 20px;
+    color: white;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.28), transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(249, 115, 22, 0.16), transparent 40%),
+        linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f172a 100%);
 }
 
-main > section:first-child h2 {
-    font-size: 40px;
-    margin-bottom: 10px;
+.hero-content {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 7px 16px;
+    border: 1px solid rgba(249, 115, 22, 0.7);
+    border-radius: 30px;
+    color: #f97316;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+}
+
+.hero h2 {
+    margin: 0 0 18px;
+    font-size: clamp(36px, 6vw, 58px);
+    line-height: 1.15;
+    font-weight: 800;
+    color: white;
+}
+
+.hero h2 span {
+    color: #f97316;
+}
+
+.hero p {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    font-size: 18px;
+    color: #cbd5e1;
+}
+
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 50px;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid white;
+}
+
+.btn-outline:hover {
+    background-color: white;
     color: #0f172a;
 }
 
-main > section:first-child p {
-    max-width: 600px;
-    margin: 0 auto 25px;
-    color: #475569;
+.hero-stats {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin: 0;
+    padding: 25px 0 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.hero-stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hero-stats strong {
+    font-size: 30px;
+    color: #f97316;
+}
+
+.hero-stats span {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #94a3b8;
 }
 
 /* ===== BUTTONS ===== */
@@ -169,6 +260,11 @@ button {
     border-radius: 25px;
     cursor: pointer;
     font-size: 15px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.97);
 }
 
 button:hover {

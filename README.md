@@ -56,9 +56,6 @@ The website is simple and manageable to develop but still has enough features fo
 - HTML5
 - CSS3
 
-## Group Members
-Yzabelle Grace Cane, Viena Grace Echavez, Maria Chesam Leonor, Jeah May Pareja
-
 _Planned: JavaScript (front-end logic), and a backend/database for accounts, bookings, and admin CRUD._
 
 ## Development Progress Tracking

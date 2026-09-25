@@ -14,7 +14,7 @@ FitSpot is a website where users can check gym membership plans, view available 
 
 ## Main Features
 
-- User registration and login
+- User registration and login (Need to implement database for this)
 - View membership plans, prices, and inclusions
 - Browse fitness classes such as Zumba, Yoga, Pilates, Boxing, and Strength Training
 - View available dates, times, and slots

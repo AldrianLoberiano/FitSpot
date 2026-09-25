@@ -42,8 +42,8 @@ The website is simple and manageable to develop but still has enough features fo
 | 4 | View available dates, times, and slots | Partial | Static schedule list only; slots are hardcoded and do not update |
 | 5 | Book or cancel a class | Not started | Booking and cancel buttons/forms exist but have no functionality |
 | 6 | View upcoming bookings | Not started | "My Bookings" section shows placeholder text only |
-| 7 | Admin: add, edit, remove membership plans and classes | Not started | No admin page or data storage yet |
-| 8 | Admin: manage schedules, members, and reservations | Not started | No admin page or data storage yet |
+| 7 | Admin: add, edit, remove membership plans and classes | Partial | Admin UI built (`pages/admin/dashboard.html`) with working add/edit/delete - no backend storage yet |
+| 8 | Admin: manage schedules, members, and reservations | Partial | Admin UI built with tables, confirm/cancel actions - no backend storage yet |
 | 9 | Monitor available slots to avoid overbooking | Not started | Requires booking logic + slot counters |
 
 ### Completed So Far
@@ -66,15 +66,21 @@ FitSpot/
 ├── index.html              # Home page (hero, plans, classes, schedule, booking)
 ├── README.md
 ├── css/
-│   └── style.css           # All site styles
+│   ├── style.css            # Site styles
+│   └── admin.css            # Admin panel styles
 ├── images/
-│   ├── fitstop_white_logo.png   # Original logo
-│   └── fitstop_logo_trans.png   # Logo with transparent background
+│   ├── fitstop_white_logo.png   # Header/logo image
+│   ├── fitstop_logo_trans.png   # Logo with transparent background
+│   ├── jogging.jpg              # Hero carousel slide 1
+│   ├── rope.jpg                 # Hero carousel slide 2
+│   └── kettlebellswings.jpg     # Hero carousel slide 3
 ├── js/
-│   └── script.js           # Login/Register popup logic
+│   ├── script.js           # Login/Register popup + hero carousel logic
+│   └── admin.js            # Admin panel logic (tabs, CRUD demo)
 └── pages/
     ├── login.html          # Standalone login / registration page
-    ├── admin/              # Admin pages (plans, classes, schedules, members) - planned
+    ├── admin/
+    │   └── dashboard.html  # Admin panel (plans, classes, schedules, members, reservations)
     └── users/              # User/member pages (bookings, account) - planned
 ```
 

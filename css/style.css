@@ -132,8 +132,10 @@ nav a:hover {
         text-align: center;
     }
 
-    header .header-spacer {
-        display: none;
+    header .header-actions {
+        justify-self: center;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
 

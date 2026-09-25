@@ -76,7 +76,7 @@
 .sidebar-menu button.is-active {
     background-color: #1e293b;
     color: white;
-    border-left-color: #f97316;
+    font-weight: bold;
 }
 
 .sidebar-link {
@@ -416,7 +416,8 @@ button:disabled {
 
     .sidebar-menu button.is-active {
         border-left-color: transparent;
-        border-bottom-color: #f97316;
+        border-bottom-color: transparent;
+        background-color: #334155;
     }
 
     .admin-content {

@@ -160,6 +160,10 @@ nav a:hover {
         justify-content: center;
     }
 
+    .hero-stats li {
+        align-items: center;
+    }
+
     .hero-media {
         max-width: 420px;
         margin: 0 auto;
@@ -265,10 +269,9 @@ nav a:hover {
 
 .hero-stats {
     list-style: none;
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     margin: 0;
     padding: 25px 0 0;
     border-top: 1px solid rgba(148, 163, 184, 0.25);
@@ -277,7 +280,9 @@ nav a:hover {
 .hero-stats li {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
+    min-width: 0;
 }
 
 .hero-stats strong {
@@ -661,5 +666,27 @@ footer {
 
 footer p {
     margin: 5px 0;
+}
+
+/* ===== HERO - SMALL SCREENS ===== */
+
+@media (max-width: 768px) {
+    .hero-stats {
+        gap: 12px;
+    }
+
+    .hero-stats li {
+        align-items: center;
+        text-align: center;
+    }
+
+    .hero-stats strong {
+        font-size: 24px;
+    }
+
+    .hero-stats span {
+        font-size: 11px;
+        letter-spacing: 0.5px;
+    }
 }
 

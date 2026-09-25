@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function startAutoplay() {
-            autoplayTimer = setInterval(nextSlide, 4000);
+            autoplayTimer = setInterval(nextSlide, 3000);
         }
 
         function resetAutoplay() {
@@ -90,12 +90,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 resetAutoplay();
             });
         });
-
-        carousel.addEventListener('mouseenter', function () {
-            clearInterval(autoplayTimer);
-        });
-
-        carousel.addEventListener('mouseleave', startAutoplay);
 
         startAutoplay();
     }

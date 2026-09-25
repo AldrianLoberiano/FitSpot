@@ -75,7 +75,7 @@ FitSpot/
 └── pages/
     ├── login.html          # Standalone login / registration page
     ├── admin/              # Admin pages (plans, classes, schedules, members) - planned
-    └── members/            # Member pages (bookings, account) - planned
+    └── users/              # User/member pages (bookings, account) - planned
 ```
 
 ## Development Progress Tracking

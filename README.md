@@ -55,8 +55,28 @@ The website is simple and manageable to develop but still has enough features fo
 
 - HTML5
 - CSS3
+- JavaScript (modal interactions)
 
-_Planned: JavaScript (front-end logic), and a backend/database for accounts, bookings, and admin CRUD._
+_Planned: a backend/database for accounts, bookings, and admin CRUD._
+
+## Folder Structure
+
+```
+FitSpot/
+├── index.html              # Home page (hero, plans, classes, schedule, booking)
+├── README.md
+├── css/
+│   └── style.css           # All site styles
+├── images/
+│   ├── fitstop_white_logo.png   # Original logo
+│   └── fitstop_logo_trans.png   # Logo with transparent background
+├── js/
+│   └── script.js           # Login/Register popup logic
+└── pages/
+    ├── login.html          # Standalone login / registration page
+    ├── admin/              # Admin pages (plans, classes, schedules, members) - planned
+    └── members/            # Member pages (bookings, account) - planned
+```
 
 ## Development Progress Tracking
 

@@ -31,14 +31,16 @@
     <div class="auth-card" id="login">
         <h2>Login</h2>
 
-        <form>
+        <form id="page-login-form">
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" autocomplete="email">
+            <input type="email" id="email" name="email" autocomplete="email" required>
 
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" autocomplete="current-password">
+            <input type="password" id="password" name="password" autocomplete="current-password" required>
 
             <button type="submit">Login</button>
+
+            <p class="form-message" id="page-login-message" hidden></p>
         </form>
 
         <p class="card-note">Don't have an account? <a href="#register">Register</a></p>
@@ -72,5 +74,6 @@
     <p>Gym Membership & Class Booking</p>
 </footer>
 
+<script src="../js/script.js" defer></script>
 </body>
 </html>

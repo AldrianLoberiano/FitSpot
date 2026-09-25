@@ -621,6 +621,16 @@ button:hover {
     text-decoration: underline;
 }
 
+.form-message {
+    margin: -8px 0 0;
+    font-size: 14px;
+    color: #dc2626;
+}
+
+.form-message.is-success {
+    color: #16a34a;
+}
+
 /* ===== LOGIN POPUP ===== */
 
 .modal-overlay {

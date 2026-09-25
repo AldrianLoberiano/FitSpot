@@ -51,6 +51,43 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    const ADMIN_EMAIL = 'admin@fitspot.com';
+    const ADMIN_PASSWORD = 'admin123';
+
+    function handleLogin(formId, messageId, adminPath) {
+        const form = document.getElementById(formId);
+        const message = document.getElementById(messageId);
+        if (!form || !message) return;
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const email = form.querySelector('input[type="email"]').value.trim().toLowerCase();
+            const password = form.querySelector('input[type="password"]').value;
+
+            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                message.textContent = 'Login successful. Redirecting to admin panel...';
+                message.classList.add('is-success');
+                message.hidden = false;
+
+                try {
+                    sessionStorage.setItem('fitspot-admin', '1');
+                } catch (error) {}
+
+                setTimeout(function () {
+                    window.location.href = adminPath;
+                }, 600);
+            } else {
+                message.textContent = 'Invalid email or password.';
+                message.classList.remove('is-success');
+                message.hidden = false;
+            }
+        });
+    }
+
+    handleLogin('popup-login-form', 'popup-login-message', 'pages/admin/dashboard.html');
+    handleLogin('page-login-form', 'page-login-message', 'admin/dashboard.html');
+
     const carousel = document.getElementById('hero-carousel');
 
     if (carousel) {

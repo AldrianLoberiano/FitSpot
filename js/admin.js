@@ -53,6 +53,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 { key: 'slots', label: 'Available Slots', type: 'number', placeholder: 'e.g. 10' }
             ],
             columns: ['name', 'schedule', 'slots']
+        },
+        profile: {
+            label: 'My Profile',
+            formTitle: 'My Profile',
+            fields: [
+                { key: 'name', label: 'Full Name', type: 'text', value: 'Yzabelle Grace Cane' },
+                { key: 'email', label: 'Email', type: 'email', value: 'admin@fitspot.com' },
+                { key: 'phone', label: 'Contact Number', type: 'text', value: '+63 912 345 6789' }
+            ],
+            columns: []
+        },
+        settings: {
+            label: 'Settings',
+            formTitle: 'Settings',
+            fields: [
+                { key: 'gym', label: 'Gym Name', type: 'text', value: 'FitSpot' },
+                { key: 'hours', label: 'Operating Hours', type: 'text', value: 'Monday - Saturday, 6:00 AM - 9:00 PM' },
+                { key: 'slots', label: 'Max Slots per Class', type: 'number', value: '10' }
+            ],
+            columns: []
         }
     };
 
@@ -79,7 +99,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         currentType = type;
         currentRow = row || null;
-        modalTitle.textContent = (row ? 'Edit ' : 'Add ') + config.label;
+        modalTitle.textContent = row
+            ? 'Edit ' + config.label
+            : (config.formTitle || 'Add ' + config.label);
         fieldsWrap.innerHTML = '';
 
         config.fields.forEach(function (field) {
@@ -104,6 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? cell.textContent.replace(/\D/g, '')
                         : cell.textContent;
                 }
+            } else if (field.value !== undefined) {
+                input.value = field.value;
             }
 
             fieldsWrap.appendChild(label);
@@ -176,6 +200,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.addEventListener('click', function (event) {
+        const formButton = event.target.closest('[data-open-form]');
+        if (formButton) {
+            closeDropdown();
+            openForm(formButton.dataset.openForm, null);
+            return;
+        }
+
         const addButton = event.target.closest('[data-add]');
         if (addButton) {
             openForm(addButton.dataset.add, null);
@@ -222,7 +253,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const dropdown = document.getElementById('admin-dropdown');
     const logoutButton = document.getElementById('logout-btn');
 
+    let closeDropdown = function () {};
+
     if (avatar && dropdown) {
+        closeDropdown = function () {
+            dropdown.hidden = true;
+            avatar.setAttribute('aria-expanded', 'false');
+        };
+
         avatar.addEventListener('click', function (event) {
             event.stopPropagation();
             const isOpen = dropdown.hidden;
@@ -232,8 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.addEventListener('click', function (event) {
             if (!dropdown.hidden && !dropdown.contains(event.target)) {
-                dropdown.hidden = true;
-                avatar.setAttribute('aria-expanded', 'false');
+                closeDropdown();
             }
         });
     }

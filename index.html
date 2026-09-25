@@ -188,14 +188,16 @@
         <div class="modal-body">
             <h2 id="login-popup-title">Login</h2>
 
-            <form>
+            <form id="popup-login-form">
                 <label for="popup-email">Email:</label>
-                <input type="email" id="popup-email" name="popup-email" autocomplete="email">
+                <input type="email" id="popup-email" name="popup-email" autocomplete="email" required>
 
                 <label for="popup-password">Password:</label>
-                <input type="password" id="popup-password" name="popup-password" autocomplete="current-password">
+                <input type="password" id="popup-password" name="popup-password" autocomplete="current-password" required>
 
                 <button type="submit">Login</button>
+
+                <p class="form-message" id="popup-login-message" hidden></p>
             </form>
 
             <p class="card-note">Don't have an account? <a href="#register-popup" class="modal-switch">Register</a></p>

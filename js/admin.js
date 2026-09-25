@@ -217,4 +217,33 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         saveForm();
     });
+
+    const avatar = document.getElementById('admin-avatar');
+    const dropdown = document.getElementById('admin-dropdown');
+    const logoutButton = document.getElementById('logout-btn');
+
+    if (avatar && dropdown) {
+        avatar.addEventListener('click', function (event) {
+            event.stopPropagation();
+            const isOpen = dropdown.hidden;
+            dropdown.hidden = !isOpen;
+            avatar.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!dropdown.hidden && !dropdown.contains(event.target)) {
+                dropdown.hidden = true;
+                avatar.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function () {
+            try {
+                sessionStorage.removeItem('fitspot-admin');
+            } catch (error) {}
+            window.location.replace('../../index.html');
+        });
+    }
 });

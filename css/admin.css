@@ -80,20 +80,6 @@
     border-left-color: transparent;
 }
 
-.sidebar-link {
-    display: block;
-    margin-top: auto;
-    padding: 12px 14px;
-    color: #94a3b8;
-    font-size: 14px;
-    text-decoration: none;
-    border-top: 1px solid #1e293b;
-}
-
-.sidebar-link:hover {
-    color: #f97316;
-}
-
 /* ===== TOPBAR ===== */
 
 .admin-main {

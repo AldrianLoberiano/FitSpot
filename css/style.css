@@ -452,32 +452,39 @@ button:hover {
 
 /* ===== LOGIN ===== */
 
-#login {
-    padding: 50px 20px;
-    max-width: 500px;
+/* ===== LOGIN / REGISTER PAGE ===== */
+
+.auth-page {
+    max-width: 950px;
     margin: 0 auto;
+    padding: 50px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    align-items: start;
 }
 
-#login h2 {
-    text-align: center;
-    color: #0f172a;
-    margin-bottom: 30px;
-}
-
-#login form {
+.auth-card {
     background-color: white;
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-#login label {
+.auth-card h2 {
+    text-align: center;
+    color: #0f172a;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.auth-card label {
     display: block;
     margin-bottom: 6px;
     font-weight: bold;
 }
 
-#login input {
+.auth-card input {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
@@ -486,13 +493,87 @@ button:hover {
     font-size: 15px;
 }
 
-#login input:focus {
+.auth-card input:focus {
     outline: none;
     border-color: #f97316;
 }
 
-#login button {
-    margin-right: 8px;
+.card-note {
+    text-align: center;
+    font-size: 14px;
+    color: #475569;
+    margin-bottom: 0;
+}
+
+.card-note a {
+    color: #f97316;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.card-note a:hover {
+    text-decoration: underline;
+}
+
+/* ===== LOGIN POPUP ===== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.modal-overlay.is-open {
+    display: flex;
+}
+
+.modal {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modal-in 0.2s ease;
+}
+
+@keyframes modal-in {
+    from {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: 28px;
+    line-height: 1;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    background: none;
+    color: #f97316;
+    transform: none;
+}
+
+.modal .card-note a {
+    cursor: pointer;
 }
 
 /* ===== GYM INFORMATION ===== */

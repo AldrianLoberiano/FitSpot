@@ -1,3 +1,11 @@
+(function requireAdmin() {
+    try {
+        if (sessionStorage.getItem('fitspot-admin') !== '1') {
+            window.location.replace('../../index.html');
+        }
+    } catch (error) {}
+})();
+
 document.addEventListener('DOMContentLoaded', function () {
     const menuButtons = document.querySelectorAll('.sidebar-menu button[data-view]');
     const views = document.querySelectorAll('.admin-view');

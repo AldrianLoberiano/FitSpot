@@ -36,7 +36,7 @@ The website is simple and manageable to develop but still has enough features fo
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 1 | User registration and login | Not started | Login/Register form UI exists (`#login` section), but no validation, sessions, or backend yet |
+| 1 | User registration and login | Not started | Login/Register popup (index.html) and standalone page `pages/login.html` exist, but no validation, sessions, or backend yet |
 | 2 | View membership plans, prices, and inclusions | Partial | Static plans shown (Basic ₱999, Premium ₱1,499) - data is hardcoded, not editable |
 | 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Partial | Zumba, Yoga, and Strength Training are listed; **Pilates and Boxing are still missing** |
 | 4 | View available dates, times, and slots | Partial | Static schedule list only; slots are hardcoded and do not update |

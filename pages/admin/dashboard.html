@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../images/fitstop_white_logo.png" type="image/png">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <title>Admin Dashboard - FitSpot</title>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../images/fitstop_white_logo.png" alt="FitSpot">
+            <span>Admin</span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <button type="button" class="is-active" data-view="dashboard">Dashboard</button>
+            <button type="button" data-view="plans">Membership Plans</button>
+            <button type="button" data-view="classes">Fitness Classes</button>
+            <button type="button" data-view="schedules">Schedules</button>
+            <button type="button" data-view="members">Members</button>
+            <button type="button" data-view="reservations">Reservations</button>
+        </nav>
+
+        <a class="sidebar-link" href="../../index.html">&larr; Back to Site</a>
+    </div>
+
+    <div class="admin-main">
+        <header class="topbar">
+            <h1 id="admin-page-title">Dashboard</h1>
+
+            <div class="topbar-actions">
+                <span class="admin-badge">Administrator</span>
+                <span class="admin-avatar">YG</span>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- ===== DASHBOARD ===== -->
+            <section class="admin-view is-active" id="view-dashboard">
+                <div class="section-head">
+                    <div>
+                        <h2>Overview</h2>
+                        <p>Current status of the gym system</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">128</div>
+                        <div class="stat-label">Total Members</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Membership Plans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Fitness Classes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Pending Reservations</div>
+                    </div>
+                </div>
+
+                <div class="section-head">
+                    <div>
+                        <h2>Recent Reservations</h2>
+                        <p>Latest class bookings</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Class</th>
+                                <th>Schedule</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Juan Dela Cruz</td>
+                                <td>Zumba</td>
+                                <td>Monday | 5:00 PM</td>
+                                <td><span class="badge badge-orange">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>Maria Santos</td>
+                                <td>Yoga</td>
+                                <td>Tuesday | 6:00 PM</td>
+                                <td><span class="badge badge-orange">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>Pedro Reyes</td>
+                                <td>Strength Training</td>
+                                <td>Wednesday | 5:00 PM</td>
+                                <td><span class="badge badge-green">Confirmed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== MEMBERSHIP PLANS ===== -->
+            <section class="admin-view" id="view-plans">
+                <div class="section-head">
+                    <div>
+                        <h2>Membership Plans</h2>
+                        <p>Add, edit, or remove plans and their prices</p>
+                    </div>
+                    <button type="button" data-add="plan">+ Add Plan</button>
+                </div>
+
+                <div class="table-card">
+                    <table data-entity="plan">
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Price</th>
+                                <th>Inclusions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-plans">
+                            <tr>
+                                <td data-field="name">Basic Plan</td>
+                                <td data-field="price">&#8369;999</td>
+                                <td data-field="inclusions">Access to the gym and basic facilities</td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-edit" data-edit>Edit</button>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-field="name">Premium Plan</td>
+                                <td data-field="price">&#8369;1,499</td>
+                                <td data-field="inclusions">Gym access plus selected fitness classes</td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-edit" data-edit>Edit</button>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== FITNESS CLASSES ===== -->
+            <section class="admin-view" id="view-classes">
+                <div class="section-head">
+                    <div>
+                        <h2>Fitness Classes</h2>
+                        <p>Add, edit, or remove classes and their slots</p>
+                    </div>
+                    <button type="button" data-add="class">+ Add Class</button>
+                </div>
+
+                <div class="table-card">
+                    <table data-entity="class">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Schedule</th>
+                                <th>Available Slots</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-classes">
+                            <tr>
+                                <td data-field="name">Zumba</td>
+                                <td data-field="schedule">Monday | 5:00 PM</td>
+                                <td data-field="slots">8 slots</td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-edit" data-edit>Edit</button>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-field="name">Yoga</td>
+                                <td data-field="schedule">Tuesday | 6:00 PM</td>
+                                <td data-field="slots">5 slots</td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-edit" data-edit>Edit</button>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-field="name">Strength Training</td>
+                                <td data-field="schedule">Wednesday | 5:00 PM</td>
+                                <td data-field="slots">10 slots</td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-edit" data-edit>Edit</button>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== SCHEDULES ===== -->
+            <section class="admin-view" id="view-schedules">
+                <div class="section-head">
+                    <div>
+                        <h2>Class Schedules</h2>
+                        <p>Monitor slot usage to avoid overbooking</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Date &amp; Time</th>
+                                <th>Slot Usage</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Zumba</td>
+                                <td>Monday | 5:00 PM</td>
+                                <td class="slot-cell">
+                                    <span class="slot-text">6 of 8 booked</span>
+                                    <div class="slot-bar"><span style="width: 75%;"></span></div>
+                                </td>
+                                <td><span class="badge badge-green">Open</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Yoga</td>
+                                <td>Tuesday | 6:00 PM</td>
+                                <td class="slot-cell">
+                                    <span class="slot-text">5 of 5 booked</span>
+                                    <div class="slot-bar is-full"><span style="width: 100%;"></span></div>
+                                </td>
+                                <td><span class="badge badge-red">Full</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Strength Training</td>
+                                <td>Wednesday | 5:00 PM</td>
+                                <td class="slot-cell">
+                                    <span class="slot-text">3 of 10 booked</span>
+                                    <div class="slot-bar"><span style="width: 30%;"></span></div>
+                                </td>
+                                <td><span class="badge badge-green">Open</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== MEMBERS ===== -->
+            <section class="admin-view" id="view-members">
+                <div class="section-head">
+                    <div>
+                        <h2>Members</h2>
+                        <p>Manage registered gym members</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Juan Dela Cruz</td>
+                                <td>juan@email.com</td>
+                                <td>Premium Plan</td>
+                                <td><span class="badge badge-green">Active</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Remove</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Maria Santos</td>
+                                <td>maria@email.com</td>
+                                <td>Basic Plan</td>
+                                <td><span class="badge badge-green">Active</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Remove</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pedro Reyes</td>
+                                <td>pedro@email.com</td>
+                                <td>Basic Plan</td>
+                                <td><span class="badge badge-gray">Expired</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-delete" data-delete>Remove</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== RESERVATIONS ===== -->
+            <section class="admin-view" id="view-reservations">
+                <div class="section-head">
+                    <div>
+                        <h2>Reservations</h2>
+                        <p>Confirm or cancel class reservations</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Class</th>
+                                <th>Schedule</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Juan Dela Cruz</td>
+                                <td>Zumba</td>
+                                <td>Monday | 5:00 PM</td>
+                                <td class="status-cell"><span class="badge badge-orange">Pending</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-confirm" data-confirm>Confirm</button>
+                                    <button type="button" class="btn-sm btn-delete" data-cancel>Cancel</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Maria Santos</td>
+                                <td>Yoga</td>
+                                <td>Tuesday | 6:00 PM</td>
+                                <td class="status-cell"><span class="badge badge-orange">Pending</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-confirm" data-confirm>Confirm</button>
+                                    <button type="button" class="btn-sm btn-delete" data-cancel>Cancel</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pedro Reyes</td>
+                                <td>Strength Training</td>
+                                <td>Wednesday | 5:00 PM</td>
+                                <td class="status-cell"><span class="badge badge-green">Confirmed</span></td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-confirm" data-confirm disabled>Confirm</button>
+                                    <button type="button" class="btn-sm btn-delete" data-cancel disabled>Cancel</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<!-- ===== ADMIN FORM MODAL ===== -->
+<div class="modal-overlay" id="admin-form-modal" aria-hidden="true">
+    <div class="modal auth-card" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+        <button class="modal-close" type="button" aria-label="Close">&times;</button>
+
+        <div class="modal-body">
+            <h2 id="admin-modal-title">Add Membership Plan</h2>
+
+            <form id="admin-form">
+                <div class="form-fields"></div>
+
+                <div class="form-actions">
+                    <button type="submit">Save</button>
+                    <button type="button" class="btn-cancel" data-close>Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="../../js/script.js" defer></script>
+<script src="../../js/admin.js" defer></script>
+</body>
+</html>

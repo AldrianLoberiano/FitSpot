@@ -78,7 +78,11 @@ endpoint(function () {
             fail('Cannot delete: members are currently on this plan.', 409);
         }
 
-        db()->prepare('DELETE FROM membership_plans WHERE id = ?')->execute([$id]);
+        $stmt = db()->prepare('DELETE FROM membership_plans WHERE id = ?');
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 0) {
+            fail('Plan not found.', 404);
+        }
         json_out(['id' => $id]);
     }
 

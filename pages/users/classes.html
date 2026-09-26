@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../images/fitstop_white_logo.png" type="image/png">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/user.css">
+    <title>Fitness Classes - FitSpot Member</title>
+</head>
+<body class="admin-body user-body">
+<div class="admin-layout">
+
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../images/fitstop_white_logo.png" alt="FitSpot">
+            <span>Member</span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="dashboard.html">Overview</a>
+            <a href="memberships.html">Membership Plans</a>
+            <a href="classes.html" class="is-active" aria-current="page">Fitness Classes</a>
+            <a href="bookings.html">My Bookings</a>
+            <a href="profile.html">Profile</a>
+        </nav>
+    </div>
+
+    <div class="admin-main">
+        <header class="topbar">
+            <h1 id="user-page-title">Fitness Classes</h1>
+
+            <div class="topbar-actions">
+                <span class="admin-badge">Member</span>
+
+                <div class="admin-user">
+                    <button type="button" class="admin-avatar" id="user-avatar" aria-haspopup="true" aria-expanded="false">JD</button>
+
+                    <div class="admin-dropdown" id="user-dropdown" hidden>
+                        <a class="dropdown-item" href="profile.html">Profile</a>
+                        <a class="dropdown-item" href="bookings.html">My Bookings</a>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item is-danger" id="user-logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- ===== FITNESS CLASSES ===== -->
+            <section class="admin-view is-active" id="view-classes">
+                <div class="section-head">
+                    <div>
+                        <h2>Fitness Classes</h2>
+                        <p>Browse classes and check available dates, times, and slots</p>
+                    </div>
+                </div>
+
+                <p class="action-note" id="class-note" hidden></p>
+
+                <div class="class-grid" id="class-grid"></div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<script src="../../js/user.js" defer></script>
+</body>
+</html>

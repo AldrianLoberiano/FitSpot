@@ -1,62 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    const API = '../../api/';
-    const SERVER_HINT = ' Could not reach the server - start it with: php -S localhost:8000';
-
-    /* ===== helpers ===== */
-
-    async function apiCall(method, file, body) {
-        const options = { method: method, headers: {} };
-        if (body !== undefined) {
-            options.headers['Content-Type'] = 'application/json';
-            options.body = JSON.stringify(body);
-        }
-        let res;
-        try {
-            res = await fetch(API + file, options);
-        } catch (networkError) {
-            const error = new Error('Could not reach the server.');
-            error.kind = 'network';
-            throw error;
-        }
-        let data = null;
-        try { data = await res.json(); } catch (parseError) {}
-        if (!res.ok) {
-            const error = new Error((data && data.error) || '');
-            error.status = res.status;
-            error.apiMessage = data && data.error ? String(data.error) : '';
-            if (res.status === 401 && error.apiMessage === 'Please log in first.') {
-                error.sessionExpired = true;
-            }
-            throw error;
-        }
-        return data;
-    }
-
-    function esc(value) {
-        return String(value === null || value === undefined ? '' : value)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    function peso(amount) {
-        return '\u20B1' + Number(amount).toLocaleString('en-PH', { maximumFractionDigits: 0 });
-    }
+    /* ===== helpers (apiCall / esc / peso / SERVER_HINT come from js/api.js) ===== */
 
     function errorRow(tbody, colspan, message) {
         tbody.innerHTML = '<tr><td colspan="' + colspan + '">' + esc(message) + '</td></tr>';
-    }
-
-    function showBanner(text) {
-        let banner = document.getElementById('api-error-banner');
-        if (!banner) {
-            banner = document.createElement('div');
-            banner.id = 'api-error-banner';
-            banner.className = 'api-error-banner';
-            banner.setAttribute('role', 'alert');
-            document.body.appendChild(banner);
-        }
-        banner.textContent = text;
-        banner.hidden = false;
     }
 
     function initials(fullName) {
@@ -67,6 +13,48 @@ document.addEventListener('DOMContentLoaded', async function () {
             .map(function (word) { return word[0].toUpperCase(); })
             .join('') || '?';
     }
+
+    function setupMobileMenu() {
+        const layout = document.querySelector('.admin-layout');
+        const sidebar = document.querySelector('.sidebar');
+        const topbar = document.querySelector('.topbar');
+        if (!layout || !sidebar || !topbar) return;
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'menu-toggle';
+        toggle.setAttribute('aria-label', 'Open navigation menu');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.innerHTML = '<span></span><span></span><span></span>';
+        topbar.insertBefore(toggle, topbar.firstChild);
+
+        function closeMenu() {
+            layout.classList.remove('is-menu-open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', 'Open navigation menu');
+        }
+
+        toggle.addEventListener('click', function (event) {
+            event.stopPropagation();
+            const isOpen = layout.classList.toggle('is-menu-open');
+            toggle.setAttribute('aria-expanded', String(isOpen));
+            toggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+        });
+
+        sidebar.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', closeMenu);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (layout.classList.contains('is-menu-open')
+                && !sidebar.contains(event.target)
+                && !toggle.contains(event.target)) {
+                closeMenu();
+            }
+        });
+    }
+
+    setupMobileMenu();
 
     /* ===== auth guard ===== */
 
@@ -79,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             window.location.replace('../../index.html');
             return;
         }
-        showBanner(friendlyMessage(error, 'Unable to load this page.', SERVER_HINT));
+        toast.error(friendlyMessage(error, 'Unable to load this page.', SERVER_HINT));
         return;
     }
 
@@ -160,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             }
         } catch (error) {
-            showBanner(friendlyMessage(error, 'Unable to load the dashboard.', SERVER_HINT));
+            toast.error(friendlyMessage(error, 'Unable to load the dashboard.', SERVER_HINT));
         }
     }
 
@@ -236,8 +224,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                             '<span style="width: ' + slot.percent + '%;"></span>' +
                         '</div>' +
                     '</td>' +
-                    '<td><span class="badge ' + slot.slot_color + '">' + esc(slot.slot_label) + '</span></td>' +
+                    '<td class="status-cell"><span class="badge ' + slot.status_color + '">' + esc(slot.status_label) + '</span></td>' +
                     '<td>' +
+                        '<button type="button" class="btn-sm ' + (slot.status === 'open' ? 'btn-delete' : 'btn-confirm') + '" data-toggle-schedule>' +
+                            (slot.status === 'open' ? 'Close' : 'Open') +
+                        '</button>' +
                         '<button type="button" class="btn-sm btn-delete" data-delete>Delete</button>' +
                     '</td>' +
                     '</tr>';
@@ -581,13 +572,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             await apiCall('DELETE', endpoint.file, { id: id });
         } catch (error) {
-            showBanner(friendlyMessage(error, 'Unable to complete your request.'));
             toast.error(friendlyMessage(error, 'Unable to complete your request.'));
             return;
         }
-        showBanner('');
-        const banner = document.getElementById('api-error-banner');
-        if (banner) banner.hidden = true;
 
         if (entity === 'plan') loadPlans();
         if (entity === 'class') loadClasses();
@@ -610,12 +597,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 button.disabled = true;
             });
         } catch (error) {
-            showBanner(friendlyMessage(error, 'Unable to complete your request.'));
             toast.error(friendlyMessage(error, 'Unable to complete your request.'));
         }
     }
 
-    document.addEventListener('click', function (event) {
+    document.addEventListener('click', async function (event) {
         const formButton = event.target.closest('[data-open-form]');
         if (formButton) {
             closeDropdown();
@@ -645,8 +631,37 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
+        const toggleScheduleButton = event.target.closest('[data-toggle-schedule]');
+        if (toggleScheduleButton) {
+            const row = toggleScheduleButton.closest('tr');
+            try {
+                const data = await apiCall('POST', 'schedules.php', {
+                    id: Number(row.dataset.id),
+                    action: 'toggle_status'
+                });
+                const statusCell = row.querySelector('.status-cell');
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge ' + data.status_color + '">' +
+                        esc(data.status_label) + '</span>';
+                }
+                toggleScheduleButton.className = 'btn-sm ' +
+                    (data.status === 'open' ? 'btn-delete' : 'btn-confirm');
+                toggleScheduleButton.textContent = data.status === 'open' ? 'Close' : 'Open';
+                toast.success('Schedule is now ' + data.status_label.toLowerCase() + '.');
+            } catch (error) {
+                toast.error(friendlyMessage(error, 'Unable to update the schedule status.'));
+            }
+            return;
+        }
+
         const confirmButton = event.target.closest('[data-confirm]');
         if (confirmButton) {
+            const confirmed = await confirmDialog(
+                'Confirm Reservation',
+                'Are you sure you want to confirm this reservation?',
+                'Confirm'
+            );
+            if (!confirmed) return;
             setReservation(confirmButton.closest('tr'), 'confirm');
             return;
         }

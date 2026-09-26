@@ -60,34 +60,8 @@
 
                 <p class="action-note" id="plan-note" hidden></p>
 
-                <div class="plans-grid">
-                    <article class="plan-card" data-plan="Basic Plan">
-                        <h3>Basic Plan</h3>
-                        <p class="plan-price">&#8369;999<span> / month</span></p>
-                        <ul>
-                            <li>Access to the gym and basic facilities</li>
-                            <li>Use of cardio and strength equipment</li>
-                            <li>Locker room access</li>
-                        </ul>
-                        <div class="plan-footer">
-                            <span class="badge badge-orange plan-tag" hidden>Current Plan</span>
-                            <button type="button" class="plan-choose" data-choose>Choose Plan</button>
-                        </div>
-                    </article>
-
-                    <article class="plan-card is-current" data-plan="Premium Plan">
-                        <h3>Premium Plan</h3>
-                        <p class="plan-price">&#8369;1,499<span> / month</span></p>
-                        <ul>
-                            <li>Gym access plus selected fitness classes</li>
-                            <li>Access to all group classes</li>
-                            <li>Priority booking for schedules</li>
-                        </ul>
-                        <div class="plan-footer">
-                            <span class="badge badge-orange plan-tag">Current Plan</span>
-                            <button type="button" class="plan-choose" data-choose hidden>Choose Plan</button>
-                        </div>
-                    </article>
+                <div class="plans-grid" id="plans-grid">
+                    <p class="empty-state">Loading membership plans...</p>
                 </div>
             </section>
 

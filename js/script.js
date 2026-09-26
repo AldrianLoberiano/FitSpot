@@ -300,8 +300,10 @@ document.addEventListener('DOMContentLoaded', function () {
             planButton.textContent = 'Plan Selected';
             planButton.disabled = true;
             showMessage(message, 'Your membership is now the ' + result.plan + '.', true);
+            toast.success('Membership created successfully.');
         } catch (error) {
             showMessage(message, error.message, false);
+            toast.error('Unable to complete your request.');
         }
     });
 
@@ -345,6 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Log in with a member account to book a class.', false);
                 } else {
                     showMessage(bookingMessage, error.message + SERVER_HINT, false);
+                    toast.error('Unable to complete your request.');
                 }
                 return;
             }
@@ -356,11 +359,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             } catch (error) {
                 showMessage(bookingMessage, error.message, false);
+                toast.error('Unable to complete your request.');
                 return;
             }
 
             showMessage(bookingMessage,
                 'Booking request sent for ' + className + ' on ' + date + '. Awaiting confirmation.', true);
+            toast.success('Booking confirmed successfully.');
             bookingForm.reset();
         });
     }

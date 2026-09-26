@@ -10,11 +10,24 @@ document.addEventListener('DOMContentLoaded', async function () {
             options.headers['Content-Type'] = 'application/json';
             options.body = JSON.stringify(body);
         }
-        const res = await fetch(API + file, options);
+        let res;
+        try {
+            res = await fetch(API + file, options);
+        } catch (networkError) {
+            const error = new Error('Could not reach the server.');
+            error.kind = 'network';
+            throw error;
+        }
         let data = null;
-        try { data = await res.json(); } catch (error) {}
+        try { data = await res.json(); } catch (parseError) {}
         if (!res.ok) {
-            throw new Error((data && data.error) || 'Could not reach the server.');
+            const error = new Error((data && data.error) || '');
+            error.status = res.status;
+            error.apiMessage = data && data.error ? String(data.error) : '';
+            if (res.status === 401 && error.apiMessage === 'Please log in first.') {
+                error.sessionExpired = true;
+            }
+            throw error;
         }
         return data;
     }
@@ -82,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             window.location.replace('../../index.html');
             return;
         }
-        showBanner('Not connected to the backend.' + SERVER_HINT);
+        showBanner(friendlyMessage(error, 'Unable to load this page.', SERVER_HINT));
         return;
     }
 
@@ -189,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             setText('stat-days', profile.membership ? profile.membership.days_left : '—');
             applyPlan();
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="3">' + esc('Bookings could not be loaded.' + SERVER_HINT) + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3">' + esc(friendlyMessage(error, 'Unable to load bookings.', SERVER_HINT)) + '</td></tr>';
         }
     }
 
@@ -238,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</article>';
             }).join('');
         } catch (error) {
-            showNote('class-note', 'Classes could not be loaded.' + SERVER_HINT, true);
+            showNote('class-note', friendlyMessage(error, 'Unable to load classes.', SERVER_HINT), true);
         }
     }
 
@@ -278,7 +291,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</tr>';
             }).join('');
         } catch (error) {
-            showNote('booking-note', 'Bookings could not be loaded.' + SERVER_HINT, true);
+            showNote('booking-note', friendlyMessage(error, 'Unable to load bookings.', SERVER_HINT), true);
         }
     }
 
@@ -313,7 +326,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             applyPlan();
         } catch (error) {
-            showNote('plan-note', 'Plans could not be loaded.' + SERVER_HINT, true);
+            showNote('plan-note', friendlyMessage(error, 'Unable to load plans.', SERVER_HINT), true);
         }
     }
 
@@ -352,7 +365,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         } catch (error) {
             const message = document.getElementById('profile-message');
             if (message) {
-                message.textContent = 'Profile could not be loaded.' + SERVER_HINT;
+                message.textContent = friendlyMessage(error, 'Unable to load your profile.', SERVER_HINT);
                 message.classList.remove('is-success');
                 message.hidden = false;
             }
@@ -379,8 +392,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
             } catch (error) {
                 button.disabled = false;
-                showNote('class-note', error.message, true);
-                toast.error('Unable to complete your request.');
+                showNote('class-note', friendlyMessage(error, 'Something went wrong while booking your class.'), true);
+                toast.error(friendlyMessage(error, 'Something went wrong while booking your class.'));
                 return;
             }
 
@@ -402,8 +415,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             try {
                 await apiCall('POST', 'bookings.php', { id: bookingId, action: 'cancel' });
             } catch (error) {
-                showNote('booking-note', error.message, true);
-                toast.error('Unable to complete your request.');
+                showNote('booking-note', friendlyMessage(error, 'Unable to complete your request.'), true);
+                toast.error(friendlyMessage(error, 'Unable to complete your request.'));
                 return;
             }
 
@@ -433,8 +446,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 await loadPlansPage();
             } catch (error) {
                 button.disabled = false;
-                showNote('plan-note', error.message, true);
-                toast.error('Unable to complete your request.');
+                showNote('plan-note', friendlyMessage(error, 'Unable to complete your request.'), true);
+                toast.error(friendlyMessage(error, 'Unable to complete your request.'));
             }
         });
     }
@@ -459,11 +472,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
             } catch (error) {
                 if (message) {
-                    message.textContent = error.message;
+                    message.textContent = friendlyMessage(error, 'Unable to complete your request.');
                     message.classList.remove('is-success');
                     message.hidden = false;
                 }
-                toast.error('Unable to complete your request.');
+                toast.error(friendlyMessage(error, 'Unable to complete your request.'));
                 return;
             }
 

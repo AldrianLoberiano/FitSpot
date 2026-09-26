@@ -70,7 +70,11 @@ endpoint(function () {
             fail('Cannot remove an admin account.', 409);
         }
 
-        db()->prepare('DELETE FROM users WHERE id = ?')->execute([$id]);
+        $stmt = db()->prepare('DELETE FROM users WHERE id = ?');
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 0) {
+            fail('Member not found.', 404);
+        }
         json_out(['id' => $id]);
     }
 

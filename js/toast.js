@@ -61,6 +61,26 @@
         return toast;
     }
 
+    /* Turns low-level errors into consistent, user-friendly messages.
+       - sessionExpired  -> "Your session has expired..."
+       - safe 4xx        -> show the curated backend message (e.g. "That class is already full.")
+       - anything else   -> the contextual fallback supplied by the caller
+       - network errors   -> fallback + optional developer hint appended */
+    window.friendlyMessage = function (error, fallback, hint) {
+        let text;
+        if (error && error.sessionExpired) {
+            text = 'Your session has expired. Please log in again.';
+        } else if (error && error.status >= 400 && error.status < 500 && error.apiMessage) {
+            text = error.apiMessage;
+        } else {
+            text = fallback;
+        }
+        if (error && error.kind === 'network' && hint) {
+            text += hint;
+        }
+        return text;
+    };
+
     window.toast = {
         show: show,
         success: function (message) { return show('success', message); },

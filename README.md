@@ -87,6 +87,9 @@ FitSpot/
 │   ├── style.css            # Site styles
 │   ├── admin.css            # Admin panel styles
 │   └── user.css             # Member portal styles
+├── database/
+│   ├── database.md          # MySQL database design and queries
+│   └── fitspot.sql          # Ready-to-import MySQL database file (schema + seed)
 ├── images/
 │   ├── fitstop_white_logo.png   # Header/logo image
 │   ├── fitstop_logo_trans.png   # Logo with transparent background

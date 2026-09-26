@@ -130,6 +130,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (logoutButton) {
         logoutButton.addEventListener('click', async function () {
+            const confirmed = await confirmDialog(
+                'Confirm Logout',
+                'Are you sure you want to logout?',
+                'Logout'
+            );
+            if (!confirmed) return;
             try { await apiCall('POST', 'logout.php'); } catch (error) {}
             window.location.replace('../../index.html');
         });

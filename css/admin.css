@@ -181,6 +181,7 @@
     font-size: 14px;
     color: #334155;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .dropdown-item:hover {
@@ -369,6 +370,28 @@ a.btn-sm {
     display: inline-block;
     text-decoration: none;
     margin-right: 6px;
+}
+
+/* Pill action that looks identical to the global button style,
+   for links that navigate between admin/member pages. */
+.btn-pill {
+    display: inline-block;
+    background-color: #f97316;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 15px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-pill:hover {
+    background-color: #ea580c;
+    color: white;
+    text-decoration: none;
+    transform: none;
 }
 
 .btn-delete {

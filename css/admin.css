@@ -37,11 +37,13 @@
 }
 
 .sidebar-brand span {
-    flex-basis: 100%;
+    flex: 1 1 0;
+    min-width: 0;
     color: #f97316;
     font-size: 11px;
     font-weight: bold;
     letter-spacing: 1.5px;
+    line-height: 1.45;
     text-transform: uppercase;
 }
 

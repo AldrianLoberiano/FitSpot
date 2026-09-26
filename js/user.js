@@ -1,46 +1,5 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    const API = '../../api/';
-    const SERVER_HINT = ' Could not reach the server - start it with: php -S localhost:8000';
-
-    /* ===== helpers ===== */
-
-    async function apiCall(method, file, body) {
-        const options = { method: method, headers: {} };
-        if (body !== undefined) {
-            options.headers['Content-Type'] = 'application/json';
-            options.body = JSON.stringify(body);
-        }
-        let res;
-        try {
-            res = await fetch(API + file, options);
-        } catch (networkError) {
-            const error = new Error('Could not reach the server.');
-            error.kind = 'network';
-            throw error;
-        }
-        let data = null;
-        try { data = await res.json(); } catch (parseError) {}
-        if (!res.ok) {
-            const error = new Error((data && data.error) || '');
-            error.status = res.status;
-            error.apiMessage = data && data.error ? String(data.error) : '';
-            if (res.status === 401 && error.apiMessage === 'Please log in first.') {
-                error.sessionExpired = true;
-            }
-            throw error;
-        }
-        return data;
-    }
-
-    function esc(value) {
-        return String(value === null || value === undefined ? '' : value)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    function peso(amount) {
-        return '\u20B1' + Number(amount).toLocaleString('en-PH', { maximumFractionDigits: 0 });
-    }
+    /* ===== helpers (apiCall / esc / peso / SERVER_HINT come from js/api.js) ===== */
 
     function formatDate(value) {
         if (!value) return '—';
@@ -54,27 +13,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (element) element.textContent = String(value);
     }
 
-    function showNote(id, text, isError) {
-        const note = document.getElementById(id);
-        if (!note) return;
-        note.textContent = text;
-        note.classList.toggle('is-error', Boolean(isError));
-        note.hidden = false;
-    }
-
-    function showBanner(text) {
-        let banner = document.getElementById('api-error-banner');
-        if (!banner) {
-            banner = document.createElement('div');
-            banner.id = 'api-error-banner';
-            banner.className = 'api-error-banner';
-            banner.setAttribute('role', 'alert');
-            document.body.appendChild(banner);
-        }
-        banner.textContent = text;
-        banner.hidden = false;
-    }
-
     function initials(fullName) {
         return String(fullName || '')
             .split(/\s+/)
@@ -83,6 +21,48 @@ document.addEventListener('DOMContentLoaded', async function () {
             .map(function (word) { return word[0].toUpperCase(); })
             .join('') || '?';
     }
+
+    function setupMobileMenu() {
+        const layout = document.querySelector('.admin-layout');
+        const sidebar = document.querySelector('.sidebar');
+        const topbar = document.querySelector('.topbar');
+        if (!layout || !sidebar || !topbar) return;
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'menu-toggle';
+        toggle.setAttribute('aria-label', 'Open navigation menu');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.innerHTML = '<span></span><span></span><span></span>';
+        topbar.insertBefore(toggle, topbar.firstChild);
+
+        function closeMenu() {
+            layout.classList.remove('is-menu-open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', 'Open navigation menu');
+        }
+
+        toggle.addEventListener('click', function (event) {
+            event.stopPropagation();
+            const isOpen = layout.classList.toggle('is-menu-open');
+            toggle.setAttribute('aria-expanded', String(isOpen));
+            toggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+        });
+
+        sidebar.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', closeMenu);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (layout.classList.contains('is-menu-open')
+                && !sidebar.contains(event.target)
+                && !toggle.contains(event.target)) {
+                closeMenu();
+            }
+        });
+    }
+
+    setupMobileMenu();
 
     /* ===== auth guard ===== */
 
@@ -95,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             window.location.replace('../../index.html');
             return;
         }
-        showBanner(friendlyMessage(error, 'Unable to load this page.', SERVER_HINT));
+        toast.error(friendlyMessage(error, 'Unable to load this page.', SERVER_HINT));
         return;
     }
 
@@ -231,8 +211,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 let button;
                 if (isBooked) {
-                    button = '<button type="button" class="btn-book" disabled>' +
-                        (slot.my_status === 'confirmed' ? 'Booked' : 'Booked') + '</button>';
+                    button = '<button type="button" class="btn-book" disabled>Booked</button>';
                 } else if (isFull) {
                     button = '<button type="button" class="btn-book" disabled>Class Full</button>';
                 } else {
@@ -257,7 +236,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</article>';
             }).join('');
         } catch (error) {
-            showNote('class-note', friendlyMessage(error, 'Unable to load classes.', SERVER_HINT), true);
+            toast.error(friendlyMessage(error, 'Unable to load classes.', SERVER_HINT));
         }
     }
 
@@ -268,7 +247,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         const params = new URLSearchParams(window.location.search);
         const bookedNote = params.get('booked');
         if (bookedNote) {
-            showNote('booking-note', 'Booking request sent for ' + bookedNote + '. Awaiting confirmation.', false);
             toast.success('Booking confirmed successfully.');
             history.replaceState({}, '', window.location.pathname);
         }
@@ -297,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</tr>';
             }).join('');
         } catch (error) {
-            showNote('booking-note', friendlyMessage(error, 'Unable to load bookings.', SERVER_HINT), true);
+            toast.error(friendlyMessage(error, 'Unable to load bookings.', SERVER_HINT));
         }
     }
 
@@ -332,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             applyPlan();
         } catch (error) {
-            showNote('plan-note', friendlyMessage(error, 'Unable to load plans.', SERVER_HINT), true);
+            toast.error(friendlyMessage(error, 'Unable to load plans.', SERVER_HINT));
         }
     }
 
@@ -398,7 +376,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
             } catch (error) {
                 button.disabled = false;
-                showNote('class-note', friendlyMessage(error, 'Something went wrong while booking your class.'), true);
                 toast.error(friendlyMessage(error, 'Something went wrong while booking your class.'));
                 return;
             }
@@ -421,13 +398,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             try {
                 await apiCall('POST', 'bookings.php', { id: bookingId, action: 'cancel' });
             } catch (error) {
-                showNote('booking-note', friendlyMessage(error, 'Unable to complete your request.'), true);
                 toast.error(friendlyMessage(error, 'Unable to complete your request.'));
                 return;
             }
 
-            showNote('booking-note',
-                'Your booking for ' + (booking ? booking.class_name : 'the class') + ' was cancelled.', true);
+            toast.success('Your booking for ' + (booking ? booking.class_name : 'the class') + ' was cancelled.');
             loadBookingsPage();
         });
     }
@@ -447,12 +422,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const result = await apiCall('POST', 'membership.php', {
                     plan_id: Number(button.dataset.planId)
                 });
-                showNote('plan-note', 'Your membership is now the ' + result.plan + '.', false);
-                toast.success('Membership created successfully.');
+                toast.success('Your membership is now the ' + result.plan + '.');
                 await loadPlansPage();
             } catch (error) {
                 button.disabled = false;
-                showNote('plan-note', friendlyMessage(error, 'Unable to complete your request.'), true);
                 toast.error(friendlyMessage(error, 'Unable to complete your request.'));
             }
         });

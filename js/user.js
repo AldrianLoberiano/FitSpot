@@ -7,72 +7,9 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function () {
-    const menuButtons = document.querySelectorAll('.sidebar-menu button[data-view]');
-    const views = document.querySelectorAll('.admin-view');
-    const pageTitle = document.getElementById('user-page-title');
-
-    function showView(view) {
-        menuButtons.forEach(function (button) {
-            button.classList.toggle('is-active', button.dataset.view === view);
-        });
-
-        views.forEach(function (section) {
-            section.classList.toggle('is-active', section.id === 'view-' + view);
-        });
-
-        const activeButton = document.querySelector('.sidebar-menu button[data-view="' + view + '"]');
-        if (pageTitle && activeButton) pageTitle.textContent = activeButton.textContent.trim();
-    }
-
-    menuButtons.forEach(function (button) {
-        button.addEventListener('click', function () {
-            showView(button.dataset.view);
-        });
-    });
-
-    const avatar = document.getElementById('user-avatar');
-    const dropdown = document.getElementById('user-dropdown');
-    const logoutButton = document.getElementById('user-logout');
-
-    function closeDropdown() {
-        if (!dropdown || !avatar) return;
-        dropdown.hidden = true;
-        avatar.setAttribute('aria-expanded', 'false');
-    }
-
-    if (avatar && dropdown) {
-        avatar.addEventListener('click', function (event) {
-            event.stopPropagation();
-            const isOpen = dropdown.hidden;
-            dropdown.hidden = !isOpen;
-            avatar.setAttribute('aria-expanded', String(isOpen));
-        });
-
-        document.addEventListener('click', function (event) {
-            if (!dropdown.hidden && !dropdown.contains(event.target)) {
-                closeDropdown();
-            }
-        });
-    }
-
-    document.addEventListener('click', function (event) {
-        const viewButton = event.target.closest('[data-open-view]');
-        if (viewButton) {
-            closeDropdown();
-            showView(viewButton.dataset.openView);
-        }
-    });
-
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function () {
-            try {
-                sessionStorage.removeItem('fitspot-user');
-            } catch (error) {}
-            window.location.replace('../../index.html');
-        });
-    }
-
     /* ===== DEMO DATA ===== */
+
+    const DEMO_KEY = 'fitspot-user-demo';
 
     const classes = [
         {
@@ -111,7 +48,89 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     ];
 
+    let currentPlan = 'Premium Plan';
     let bookingCounter = 1;
+    let pendingNote = null;
+
+    /* Demo state lives in sessionStorage so bookings and the chosen plan
+       survive navigation between the member pages (data resets on logout
+       or when the tab is closed - this is a front-end demo only). */
+    function saveDemo(extra) {
+        const state = {
+            bookings: bookings,
+            booked: classes.reduce(function (map, fitnessClass) {
+                map[fitnessClass.id] = fitnessClass.booked;
+                return map;
+            }, {}),
+            currentPlan: currentPlan,
+            counter: bookingCounter
+        };
+        if (extra && extra.lastMessage) state.lastMessage = extra.lastMessage;
+        try {
+            sessionStorage.setItem(DEMO_KEY, JSON.stringify(state));
+        } catch (error) {}
+    }
+
+    function loadDemo() {
+        try {
+            const raw = sessionStorage.getItem(DEMO_KEY);
+            if (!raw) return;
+            const state = JSON.parse(raw);
+
+            if (Array.isArray(state.bookings)) bookings = state.bookings;
+            if (state.booked) {
+                classes.forEach(function (fitnessClass) {
+                    if (typeof state.booked[fitnessClass.id] === 'number') {
+                        fitnessClass.booked = state.booked[fitnessClass.id];
+                    }
+                });
+            }
+            if (state.currentPlan) currentPlan = state.currentPlan;
+            if (typeof state.counter === 'number') bookingCounter = state.counter;
+            if (state.lastMessage) {
+                pendingNote = state.lastMessage;
+                delete state.lastMessage;
+                sessionStorage.setItem(DEMO_KEY, JSON.stringify(state));
+            }
+        } catch (error) {}
+    }
+
+    loadDemo();
+
+    const avatar = document.getElementById('user-avatar');
+    const dropdown = document.getElementById('user-dropdown');
+    const logoutButton = document.getElementById('user-logout');
+
+    function closeDropdown() {
+        if (!dropdown || !avatar) return;
+        dropdown.hidden = true;
+        avatar.setAttribute('aria-expanded', 'false');
+    }
+
+    if (avatar && dropdown) {
+        avatar.addEventListener('click', function (event) {
+            event.stopPropagation();
+            const isOpen = dropdown.hidden;
+            dropdown.hidden = !isOpen;
+            avatar.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!dropdown.hidden && !dropdown.contains(event.target)) {
+                closeDropdown();
+            }
+        });
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function () {
+            try {
+                sessionStorage.removeItem('fitspot-user');
+                sessionStorage.removeItem(DEMO_KEY);
+            } catch (error) {}
+            window.location.replace('../../index.html');
+        });
+    }
 
     function setText(id, value) {
         const element = document.getElementById(id);
@@ -199,6 +218,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const hasBookings = bookings.length > 0;
         if (tableCard) tableCard.hidden = !hasBookings;
         if (emptyState) emptyState.hidden = hasBookings;
+
+        if (pendingNote) {
+            showNote('booking-note', pendingNote.text, pendingNote.isError);
+            pendingNote = null;
+        }
     }
 
     function renderOverview() {
@@ -228,10 +252,26 @@ document.addEventListener('DOMContentLoaded', function () {
         }).length);
     }
 
+    function applyCurrentPlan() {
+        document.querySelectorAll('.plan-card').forEach(function (card) {
+            const isCurrent = card.dataset.plan === currentPlan;
+            const tag = card.querySelector('.plan-tag');
+            const choose = card.querySelector('.plan-choose');
+
+            card.classList.toggle('is-current', isCurrent);
+            if (tag) tag.hidden = !isCurrent;
+            if (choose) choose.hidden = isCurrent;
+        });
+
+        setText('stat-plan', currentPlan);
+        setText('profile-plan', currentPlan);
+    }
+
     function renderAll() {
         renderClasses();
         renderBookings();
         renderOverview();
+        applyCurrentPlan();
     }
 
     const classGrid = document.getElementById('class-grid');
@@ -259,9 +299,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 status: 'Pending'
             });
 
-            renderAll();
-            showNote('booking-note', 'Booking request sent for ' + fitnessClass.name + '. Awaiting confirmation.');
-            showView('bookings');
+            saveDemo({
+                lastMessage: {
+                    text: 'Booking request sent for ' + fitnessClass.name + '. Awaiting confirmation.',
+                    isError: false
+                }
+            });
+            window.location.href = 'bookings.html';
         });
     }
 
@@ -285,6 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fitnessClass.booked = Math.max(0, fitnessClass.booked - 1);
             }
 
+            saveDemo();
             renderAll();
             showNote('booking-note', 'Your booking for ' + booking.name + ' was cancelled.', true);
         });
@@ -295,19 +340,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const card = button.closest('.plan-card');
             if (!card) return;
 
-            document.querySelectorAll('.plan-card').forEach(function (planCard) {
-                const isCurrent = planCard === card;
-                const tag = planCard.querySelector('.plan-tag');
-                const choose = planCard.querySelector('.plan-choose');
-
-                planCard.classList.toggle('is-current', isCurrent);
-                if (tag) tag.hidden = !isCurrent;
-                if (choose) choose.hidden = isCurrent;
-            });
-
-            setText('stat-plan', card.dataset.plan);
-            setText('profile-plan', card.dataset.plan);
-            showNote('plan-note', 'Your membership is now the ' + card.dataset.plan + '.', false);
+            currentPlan = card.dataset.plan;
+            saveDemo();
+            applyCurrentPlan();
+            showNote('plan-note', 'Your membership is now the ' + currentPlan + '.', false);
         });
     });
 

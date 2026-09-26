@@ -51,9 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    /* ===== API helpers ===== */
-
-    const API = location.pathname.indexOf('/pages/') !== -1 ? '../api/' : 'api/';
+    /* ===== API helpers (apiCall / esc / peso / SERVER_HINT come from js/api.js) ===== */
 
     function showMessage(element, text, ok) {
         if (!element) return;
@@ -61,36 +59,6 @@ document.addEventListener('DOMContentLoaded', function () {
         element.classList.toggle('is-success', Boolean(ok));
         element.hidden = false;
     }
-
-    async function apiCall(method, file, body) {
-        const options = { method: method, headers: {} };
-        if (body !== undefined) {
-            options.headers['Content-Type'] = 'application/json';
-            options.body = JSON.stringify(body);
-        }
-        let res;
-        try {
-            res = await fetch(API + file, options);
-        } catch (networkError) {
-            const error = new Error('Could not reach the server.');
-            error.kind = 'network';
-            throw error;
-        }
-        let data = null;
-        try { data = await res.json(); } catch (parseError) {}
-        if (!res.ok) {
-            const error = new Error((data && data.error) || '');
-            error.status = res.status;
-            error.apiMessage = data && data.error ? String(data.error) : '';
-            if (res.status === 401 && error.apiMessage === 'Please log in first.') {
-                error.sessionExpired = true;
-            }
-            throw error;
-        }
-        return data;
-    }
-
-    const SERVER_HINT = ' Could not reach the server - start it with: php -S localhost:8000';
 
     /* ===== Login ===== */
 
@@ -189,16 +157,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* ===== Homepage: live plans, classes, and schedule ===== */
-
-    function esc(value) {
-        return String(value === null || value === undefined ? '' : value)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    function peso(amount) {
-        return '\u20B1' + Number(amount).toLocaleString('en-PH', { maximumFractionDigits: 0 });
-    }
 
     function sectionError(sectionId, text) {
         const section = document.getElementById(sectionId);

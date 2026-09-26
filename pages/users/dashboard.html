@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../images/fitstop_white_logo.png" type="image/png">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/user.css">
+    <title>Member Dashboard - FitSpot</title>
+</head>
+<body class="admin-body user-body">
+<div class="admin-layout">
+
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../images/fitstop_white_logo.png" alt="FitSpot">
+            <span>Member</span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <button type="button" class="is-active" data-view="overview">Overview</button>
+            <button type="button" data-view="plans">Membership Plans</button>
+            <button type="button" data-view="classes">Fitness Classes</button>
+            <button type="button" data-view="bookings">My Bookings</button>
+            <button type="button" data-view="profile">Profile</button>
+        </nav>
+    </div>
+
+    <div class="admin-main">
+        <header class="topbar">
+            <h1 id="user-page-title">Overview</h1>
+
+            <div class="topbar-actions">
+                <span class="admin-badge">Member</span>
+
+                <div class="admin-user">
+                    <button type="button" class="admin-avatar" id="user-avatar" aria-haspopup="true" aria-expanded="false">JD</button>
+
+                    <div class="admin-dropdown" id="user-dropdown" hidden>
+                        <button type="button" class="dropdown-item" data-open-view="profile">Profile</button>
+                        <button type="button" class="dropdown-item" data-open-view="bookings">My Bookings</button>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item is-danger" id="user-logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- ===== OVERVIEW ===== -->
+            <section class="admin-view is-active" id="view-overview">
+                <div class="section-head">
+                    <div>
+                        <h2>Welcome back, Juan!</h2>
+                        <p>Your membership and class activity at a glance</p>
+                    </div>
+                    <button type="button" data-open-view="classes">Book a Class</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value is-text" id="stat-plan">Premium Plan</div>
+                        <div class="stat-label">Current Plan</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">18</div>
+                        <div class="stat-label">Days Left</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-upcoming">1</div>
+                        <div class="stat-label">Upcoming Bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-confirmed">0</div>
+                        <div class="stat-label">Confirmed Bookings</div>
+                    </div>
+                </div>
+
+                <div class="section-head">
+                    <div>
+                        <h2>Upcoming Bookings</h2>
+                        <p>Your latest class reservations</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Schedule</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-overview"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== MEMBERSHIP PLANS ===== -->
+            <section class="admin-view" id="view-plans">
+                <div class="section-head">
+                    <div>
+                        <h2>Membership Plans</h2>
+                        <p>Compare plans, prices, and inclusions</p>
+                    </div>
+                </div>
+
+                <p class="action-note" id="plan-note" hidden></p>
+
+                <div class="plans-grid">
+                    <article class="plan-card" data-plan="Basic Plan">
+                        <h3>Basic Plan</h3>
+                        <p class="plan-price">&#8369;999<span> / month</span></p>
+                        <ul>
+                            <li>Access to the gym and basic facilities</li>
+                            <li>Use of cardio and strength equipment</li>
+                            <li>Locker room access</li>
+                        </ul>
+                        <div class="plan-footer">
+                            <span class="badge badge-orange plan-tag" hidden>Current Plan</span>
+                            <button type="button" class="plan-choose" data-choose>Choose Plan</button>
+                        </div>
+                    </article>
+
+                    <article class="plan-card is-current" data-plan="Premium Plan">
+                        <h3>Premium Plan</h3>
+                        <p class="plan-price">&#8369;1,499<span> / month</span></p>
+                        <ul>
+                            <li>Gym access plus selected fitness classes</li>
+                            <li>Access to all group classes</li>
+                            <li>Priority booking for schedules</li>
+                        </ul>
+                        <div class="plan-footer">
+                            <span class="badge badge-orange plan-tag">Current Plan</span>
+                            <button type="button" class="plan-choose" data-choose hidden>Choose Plan</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ===== FITNESS CLASSES ===== -->
+            <section class="admin-view" id="view-classes">
+                <div class="section-head">
+                    <div>
+                        <h2>Fitness Classes</h2>
+                        <p>Browse classes and check available dates, times, and slots</p>
+                    </div>
+                </div>
+
+                <p class="action-note" id="class-note" hidden></p>
+
+                <div class="class-grid" id="class-grid"></div>
+            </section>
+
+            <!-- ===== MY BOOKINGS ===== -->
+            <section class="admin-view" id="view-bookings">
+                <div class="section-head">
+                    <div>
+                        <h2>My Bookings</h2>
+                        <p>View and cancel your class reservations</p>
+                    </div>
+                    <button type="button" data-open-view="classes">+ Book a Class</button>
+                </div>
+
+                <p class="action-note" id="booking-note" hidden></p>
+
+                <div class="table-card" id="bookings-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Schedule</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-bookings"></tbody>
+                    </table>
+                </div>
+
+                <p class="empty-state" id="bookings-empty" hidden>
+                    You have no bookings yet. Open Fitness Classes to reserve a slot.
+                </p>
+            </section>
+
+            <!-- ===== PROFILE ===== -->
+            <section class="admin-view" id="view-profile">
+                <div class="section-head">
+                    <div>
+                        <h2>Profile</h2>
+                        <p>Manage your personal information and membership</p>
+                    </div>
+                </div>
+
+                <div class="profile-grid">
+                    <form class="form-card" id="profile-form">
+                        <h3>Personal Information</h3>
+
+                        <label for="profile-name">Full Name:</label>
+                        <input type="text" id="profile-name" name="name" value="Juan Dela Cruz" autocomplete="name">
+
+                        <label for="profile-email">Email:</label>
+                        <input type="email" id="profile-email" name="email" value="member@fitspot.com" autocomplete="email">
+
+                        <label for="profile-phone">Contact Number:</label>
+                        <input type="tel" id="profile-phone" name="phone" value="+63 917 123 4567" autocomplete="tel">
+
+                        <label for="profile-address">Address:</label>
+                        <input type="text" id="profile-address" name="address" value="Cebu City, Philippines" autocomplete="street-address">
+
+                        <button type="submit">Save Changes</button>
+
+                        <p class="form-message is-success" id="profile-message" hidden></p>
+                    </form>
+
+                    <div class="form-card">
+                        <h3>Membership</h3>
+
+                        <dl class="membership-list">
+                            <div>
+                                <dt>Plan</dt>
+                                <dd id="profile-plan">Premium Plan</dd>
+                            </div>
+                            <div>
+                                <dt>Status</dt>
+                                <dd><span class="badge badge-green">Active</span></dd>
+                            </div>
+                            <div>
+                                <dt>Member Since</dt>
+                                <dd>January 15, 2026</dd>
+                            </div>
+                            <div>
+                                <dt>Expires On</dt>
+                                <dd>October 15, 2026</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<script src="../../js/user.js" defer></script>
+</body>
+</html>

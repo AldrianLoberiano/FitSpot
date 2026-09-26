@@ -17,7 +17,7 @@ FitSpot is a website where users can check gym membership plans, view available 
 Demo accounts (login is checked against the MySQL `users` table by `api/login.php`):
 
 | Role   | Email              | Password  | Redirect      |
-|--------|--------------------|-----------|---------------|
+| ------ | ------------------ | --------- | ------------- |
 | Admin  | admin@fitspot.com  | admin123  | Admin panel   |
 | Member | member@fitspot.com | member123 | Member portal |
 
@@ -27,7 +27,7 @@ Register now creates real member accounts (bcrypt-hashed passwords) - new accoun
 
 ## How to Run
 
-The site must be **served over HTTP** (the pages talk to a PHP API; opening `index.html` as a file shows an error banner):
+The site must be **served over HTTP** (the pages talk to a PHP API; opening `index.html` as a file will not work). The steps below use XAMPP on Windows:
 
 ```bash
 # 1. Start MySQL (Laragon) and import the database once:
@@ -40,6 +40,8 @@ php -S localhost:8000
 #    http://localhost:8000
 ```
 
+The database connection in `api/db.php` uses the local MySQL server configured for XAMPP.
+
 ## Main Features
 
 - User registration and login (connected to MySQL via `api/login.php` and `api/register.php`)
@@ -50,6 +52,9 @@ php -S localhost:8000
 - View upcoming bookings
 - Admin can add, edit, or remove membership plans and classes
 - Admin can manage schedules, members, and reservations
+- Admin can open or close schedules with an Open/Close toggle; closed schedules cannot be booked
+- Confirmation popups protect admin reservation confirmations, deletions, and logout actions
+- Success and error feedback appears through side toast notifications instead of inline alert banners
 - Monitor available slots to avoid overbooking
 
 ## Benefits
@@ -62,17 +67,17 @@ The website is simple and manageable to develop but still has enough features fo
 
 ## Feature Status
 
-| # | Feature | Status | Notes |
-|---|---------|--------|-------|
-| 1 | User registration and login | Connected | Login popup + `pages/login.html` authenticate against the `users` table (`api/login.php`, bcrypt `password_verify`, PHP sessions); Register creates real accounts (`api/register.php`); admin/member pages are guarded by `api/me.php` |
-| 2 | View membership plans, prices, and inclusions | Connected | Homepage, member portal, and admin panel all load plans from `membership_plans` (`api/plans.php`); admin CRUD is persisted; members switch plans via `api/membership.php` (updates `memberships`) |
-| 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Connected | All 5 classes load from `fitness_classes` on the homepage and member portal (Pilates and Boxing gap fixed); admin CRUD persisted via `api/classes.php` |
-| 4 | View available dates, times, and slots | Connected | Homepage schedule, admin schedules page, and member class cards show real dates/times with booked/capacity counts from `class_schedules` + `bookings` (`api/schedules.php`, `api/classes.php?upcoming=1`) |
-| 5 | Book or cancel a class | Connected | Member portal books by schedule and can cancel; the homepage booking form books by class + date; capacity, duplicates, and past schedules are enforced inside a MySQL transaction (`api/bookings.php`) |
-| 6 | View upcoming bookings | Connected | "My Bookings" and the overview table load real rows from `bookings` with statuses, cancel buttons, and an empty state |
-| 7 | Admin: add, edit, remove membership plans and classes | Connected | Modal forms on `pages/admin/memberships.html` and `classes.html` write to `membership_plans` / `fitness_classes` (`api/plans.php`, `api/classes.php`); deleting a plan used by members is blocked |
-| 8 | Admin: manage schedules, members, and reservations | Connected | Separate pages with add/delete schedules (`api/schedules.php`), member removal (`api/members.php`), and confirm/cancel reservations (`api/reservations.php`) |
-| 9 | Monitor available slots to avoid overbooking | Connected | Real booked/capacity counts everywhere; bookings are blocked at capacity inside a transaction with row locks |
+| #   | Feature                                                                  | Status    | Notes                                                                                                                                                                                                                                         |
+| --- | ------------------------------------------------------------------------ | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | User registration and login                                              | Connected | Login popup + `pages/login.html` authenticate against the `users` table (`api/login.php`, bcrypt `password_verify`, PHP sessions); Register creates real accounts (`api/register.php`); admin/member pages are guarded by `api/me.php`        |
+| 2   | View membership plans, prices, and inclusions                            | Connected | Homepage, member portal, and admin panel all load plans from `membership_plans` (`api/plans.php`); admin CRUD is persisted; members switch plans via `api/membership.php` (updates `memberships`)                                             |
+| 3   | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Connected | All 5 classes load from `fitness_classes` on the homepage and member portal (Pilates and Boxing gap fixed); admin CRUD persisted via `api/classes.php`                                                                                        |
+| 4   | View available dates, times, and slots                                   | Connected | Homepage schedule, admin schedules page, and member class cards show real dates/times with booked/capacity counts from `class_schedules` + `bookings` (`api/schedules.php`, `api/classes.php?upcoming=1`); admins can open or close schedules |
+| 5   | Book or cancel a class                                                   | Connected | Member portal books by schedule and can cancel; the homepage booking form books by class + date; capacity, duplicates, and past schedules are enforced inside a MySQL transaction (`api/bookings.php`)                                        |
+| 6   | View upcoming bookings                                                   | Connected | "My Bookings" and the overview table load real rows from `bookings` with statuses, cancel buttons, and an empty state                                                                                                                         |
+| 7   | Admin: add, edit, remove membership plans and classes                    | Connected | Modal forms on `pages/admin/memberships.html` and `classes.html` write to `membership_plans` / `fitness_classes` (`api/plans.php`, `api/classes.php`); deleting a plan used by members is blocked                                             |
+| 8   | Admin: manage schedules, members, and reservations                       | Connected | Separate pages with add/delete/open/close schedules (`api/schedules.php`), member removal (`api/members.php`), and popup-protected confirm/cancel reservations (`api/reservations.php`)                                                       |
+| 9   | Monitor available slots to avoid overbooking                             | Connected | Real booked/capacity counts everywhere; bookings are blocked at capacity inside a transaction with row locks                                                                                                                                  |
 
 ### Completed So Far
 
@@ -82,18 +87,20 @@ The website is simple and manageable to develop but still has enough features fo
 - Full-screen responsive hero with badge, headline, CTAs, and stats
 - Automatic image carousel in the hero (4 slides, dots, 3-second autoplay)
 - Login/Register popup with branding panel and demo admin/member credentials
-- Admin panel (one HTML file per section): sidebar links, dashboard stats (`pages/admin/dashboard.html`), plans/classes CRUD with modal forms (`memberships.html`, `classes.html`), add/delete schedules with slot bars, members, reservations (confirm/cancel), avatar menu (Profile, Settings, Logout) - all backed by the PHP API
+- Admin panel (one HTML file per section): sidebar links, dashboard stats (`pages/admin/dashboard.html`), plans/classes CRUD with modal forms (`memberships.html`, `classes.html`), add/delete/open/close schedules with slot bars, members, reservations (confirm/cancel), confirmation popups, avatar menu (Profile, Settings, Logout) - all backed by the PHP API
 - Member portal (one HTML file per section): overview stats (`pages/users/dashboard.html`), membership plan cards with choose-plan (`memberships.html`), class browsing with slot bars and book/cancel (`classes.html`), My Bookings table with empty state (`bookings.html`), profile form (`profile.html`) - all backed by the PHP API
 - PHP backend (`api/`): session login/logout, registration, plans/classes/schedules/members/reservations CRUD, transactional booking with capacity checks, profile and membership updates, dashboard stats
 - MySQL database: feature-to-table design in `Database/MySQL/database.md`, importable schema + seed data in `Database/MySQL/fitspot.sql` (6 tables, slot-usage view, demo accounts, demo bookings)
 - Feature-folder structure (`api/`, `css/`, `js/`, `images/`, `Database/MySQL`, `pages/admin/`, `pages/users`)
 
 ## Tech Stack (Current)
+
 Frontend
+
 - HTML5
 - CSS3
 - JavaScript (fetch API, modals, hero carousel, admin panel, member portal)
-Backend
+  Backend
 - PHP 8.1 + PDO (JSON API in `api/`, sessions, bcrypt password hashing)
 - MySQL 8.0 (schema, slot-usage view, seed data)
 
@@ -105,15 +112,15 @@ Full design, queries, and the overbooking-transaction pattern are in [`Database/
 mysql -u root -p < Database/MySQL/fitspot.sql
 ```
 
-| Table / View | Purpose (Feature #) |
-|---|---|
-| `users` | Registration + login, admin and member accounts (1) |
-| `membership_plans` | Plans, prices, inclusions (2, 7) |
-| `memberships` | Member's current plan and validity |
-| `fitness_classes` | Zumba, Yoga, Pilates, Boxing, Strength Training (3, 7) |
-| `class_schedules` | Class dates, times, and slots (4, 8) |
-| `bookings` | Book/cancel reservations, upcoming bookings (5, 6, 8) |
-| `v_slot_usage` (view) | Booked/capacity counts and Open/Full status (9) |
+| Table / View          | Purpose (Feature #)                                    |
+| --------------------- | ------------------------------------------------------ |
+| `users`               | Registration + login, admin and member accounts (1)    |
+| `membership_plans`    | Plans, prices, inclusions (2, 7)                       |
+| `memberships`         | Member's current plan and validity                     |
+| `fitness_classes`     | Zumba, Yoga, Pilates, Boxing, Strength Training (3, 7) |
+| `class_schedules`     | Class dates, times, and slots (4, 8)                   |
+| `bookings`            | Book/cancel reservations, upcoming bookings (5, 6, 8)  |
+| `v_slot_usage` (view) | Booked/capacity counts and Open/Full status (9)        |
 
 Seed data included: 2 membership plans, 5 fitness classes, 5 schedules, 4 accounts (1 admin, 3 members), 1 active/1 expired membership, and 3 demo bookings. Status: **the pages are connected to this database** through the PHP API.
 
@@ -131,7 +138,7 @@ FitSpot/
 │   ├── me.php              # GET: current logged-in user (page guards)
 │   ├── plans.php           # GET public / POST, PUT, DELETE admin
 │   ├── classes.php         # GET (admin list or ?upcoming=1 with slot usage) / CRUD
-│   ├── schedules.php       # GET (?all=1 admin) / POST, DELETE
+│   ├── schedules.php       # GET (?all=1 admin) / POST create or toggle status, DELETE
 │   ├── members.php         # GET, DELETE (admin)
 │   ├── reservations.php    # GET, POST confirm/cancel (admin)
 │   ├── bookings.php        # GET my bookings / POST book (transaction) / cancel
@@ -163,7 +170,7 @@ FitSpot/
     │   ├── dashboard.html      # Overview: stats + reservations preview
     │   ├── memberships.html    # Membership plans CRUD
     │   ├── classes.html        # Fitness classes CRUD
-    │   ├── schedules.html      # Schedules with slot usage bars
+    │   ├── schedules.html      # Schedules with slot usage bars and Open/Close controls
     │   ├── members.html        # Members table
     │   └── reservations.html   # Reservations (confirm/cancel)
     └── users/
@@ -176,16 +183,16 @@ FitSpot/
 
 ## Development Progress Tracking
 
-| Course Week | Current Revisions or Updates |
-|-------------|------------------------------|
-| Week 2 | Finalized the FitSpot concept and identified the main purpose and intended users |
-| Week 3 | Created and refined the initial HTML structure of FitSpot, including the navigation, membership plans, fitness classes, schedules, and booking section. |
-| Week 4 | |
-| Week 5 | |
-| Week 6 | |
-| Week 7 | |
-| Week 8 | |
-| Week 9 | |
-| Week 10 | |
-| Week 11 | |
-| Week 12 | |
+| Course Week | Current Revisions or Updates                                                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Week 2      | Finalized the FitSpot concept and identified the main purpose and intended users                                                                        |
+| Week 3      | Created and refined the initial HTML structure of FitSpot, including the navigation, membership plans, fitness classes, schedules, and booking section. |
+| Week 4      |                                                                                                                                                         |
+| Week 5      |                                                                                                                                                         |
+| Week 6      |                                                                                                                                                         |
+| Week 7      |                                                                                                                                                         |
+| Week 8      |                                                                                                                                                         |
+| Week 9      |                                                                                                                                                         |
+| Week 10     |                                                                                                                                                         |
+| Week 11     |                                                                                                                                                         |
+| Week 12     |                                                                                                                                                         |

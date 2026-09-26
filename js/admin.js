@@ -1,239 +1,85 @@
-(function requireAdmin() {
+document.addEventListener('DOMContentLoaded', async function () {
+    const API = '../../api/';
+    const SERVER_HINT = ' Could not reach the server - start it with: php -S localhost:8000';
+
+    /* ===== helpers ===== */
+
+    async function apiCall(method, file, body) {
+        const options = { method: method, headers: {} };
+        if (body !== undefined) {
+            options.headers['Content-Type'] = 'application/json';
+            options.body = JSON.stringify(body);
+        }
+        const res = await fetch(API + file, options);
+        let data = null;
+        try { data = await res.json(); } catch (error) {}
+        if (!res.ok) {
+            throw new Error((data && data.error) || 'Could not reach the server.');
+        }
+        return data;
+    }
+
+    function esc(value) {
+        return String(value === null || value === undefined ? '' : value)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function peso(amount) {
+        return '\u20B1' + Number(amount).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+    }
+
+    function errorRow(tbody, colspan, message) {
+        tbody.innerHTML = '<tr><td colspan="' + colspan + '">' + esc(message) + '</td></tr>';
+    }
+
+    function showBanner(text) {
+        let banner = document.getElementById('api-error-banner');
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'api-error-banner';
+            banner.className = 'api-error-banner';
+            banner.setAttribute('role', 'alert');
+            document.body.appendChild(banner);
+        }
+        banner.textContent = text;
+        banner.hidden = false;
+    }
+
+    function initials(fullName) {
+        return String(fullName || '')
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(function (word) { return word[0].toUpperCase(); })
+            .join('') || '?';
+    }
+
+    /* ===== auth guard ===== */
+
+    let currentUser = null;
+
     try {
-        if (sessionStorage.getItem('fitspot-admin') !== '1') {
+        currentUser = await apiCall('GET', 'me.php');
+    } catch (error) {
+        if (error.message === 'Please log in first.') {
             window.location.replace('../../index.html');
-        }
-    } catch (error) {}
-})();
-
-document.addEventListener('DOMContentLoaded', function () {
-    /* Navigation between admin pages is handled by the sidebar links
-       (dashboard.html, memberships.html, classes.html, schedules.html,
-       members.html, reservations.html). */
-
-    const modal = document.getElementById('admin-form-modal');
-    const modalTitle = document.getElementById('admin-modal-title');
-    const form = document.getElementById('admin-form');
-    const fieldsWrap = form.querySelector('.form-fields');
-
-    const configs = {
-        plan: {
-            label: 'Membership Plan',
-            tbody: 'tbody-plans',
-            currency: '₱',
-            fields: [
-                { key: 'name', label: 'Plan Name', type: 'text', placeholder: 'e.g. Premium Plan' },
-                { key: 'price', label: 'Price per Month', type: 'number', placeholder: 'e.g. 1499' },
-                { key: 'inclusions', label: 'Inclusions', type: 'text', placeholder: 'e.g. Gym access plus selected classes' }
-            ],
-            columns: ['name', 'price', 'inclusions']
-        },
-        class: {
-            label: 'Fitness Class',
-            tbody: 'tbody-classes',
-            fields: [
-                { key: 'name', label: 'Class Name', type: 'text', placeholder: 'e.g. Pilates' },
-                { key: 'schedule', label: 'Day & Time', type: 'text', placeholder: 'e.g. Thursday | 7:00 PM' },
-                { key: 'slots', label: 'Available Slots', type: 'number', placeholder: 'e.g. 10' }
-            ],
-            columns: ['name', 'schedule', 'slots']
-        },
-        profile: {
-            label: 'My Profile',
-            formTitle: 'My Profile',
-            fields: [
-                { key: 'name', label: 'Full Name', type: 'text', value: 'Yzabelle Grace Cane' },
-                { key: 'email', label: 'Email', type: 'email', value: 'admin@fitspot.com' },
-                { key: 'phone', label: 'Contact Number', type: 'text', value: '+63 912 345 6789' }
-            ],
-            columns: []
-        },
-        settings: {
-            label: 'Settings',
-            formTitle: 'Settings',
-            fields: [
-                { key: 'gym', label: 'Gym Name', type: 'text', value: 'FitSpot' },
-                { key: 'hours', label: 'Operating Hours', type: 'text', value: 'Monday - Saturday, 6:00 AM - 9:00 PM' },
-                { key: 'slots', label: 'Max Slots per Class', type: 'number', value: '10' }
-            ],
-            columns: []
-        }
-    };
-
-    let currentType = null;
-    let currentRow = null;
-
-    function openModal() {
-        modal.classList.add('is-open');
-        modal.setAttribute('aria-hidden', 'false');
-        const firstInput = fieldsWrap.querySelector('input');
-        if (firstInput) firstInput.focus();
-    }
-
-    function closeModal() {
-        modal.classList.remove('is-open');
-        modal.setAttribute('aria-hidden', 'true');
-        currentType = null;
-        currentRow = null;
-    }
-
-    function openForm(type, row) {
-        const config = configs[type];
-        if (!config) return;
-
-        currentType = type;
-        currentRow = row || null;
-        modalTitle.textContent = row
-            ? 'Edit ' + config.label
-            : (config.formTitle || 'Add ' + config.label);
-        fieldsWrap.innerHTML = '';
-
-        config.fields.forEach(function (field) {
-            const inputId = 'admin-field-' + field.key;
-
-            const label = document.createElement('label');
-            label.setAttribute('for', inputId);
-            label.textContent = field.label + ':';
-
-            const input = document.createElement('input');
-            input.type = field.type;
-            input.id = inputId;
-            input.name = field.key;
-            input.placeholder = field.placeholder || '';
-            input.required = true;
-            if (field.type === 'number') input.min = '0';
-
-            if (row) {
-                const cell = row.querySelector('[data-field="' + field.key + '"]');
-                if (cell) {
-                    input.value = field.type === 'number'
-                        ? cell.textContent.replace(/\D/g, '')
-                        : cell.textContent;
-                }
-            } else if (field.value !== undefined) {
-                input.value = field.value;
-            }
-
-            fieldsWrap.appendChild(label);
-            fieldsWrap.appendChild(input);
-        });
-
-        openModal();
-    }
-
-    function buildRow(config, values) {
-        const row = document.createElement('tr');
-
-        config.columns.forEach(function (key) {
-            const cell = document.createElement('td');
-            cell.dataset.field = key;
-            cell.textContent = values[key];
-            row.appendChild(cell);
-        });
-
-        const actions = document.createElement('td');
-        actions.innerHTML =
-            '<button type="button" class="btn-sm btn-edit" data-edit>Edit</button>' +
-            '<button type="button" class="btn-sm btn-delete" data-delete>Delete</button>';
-        row.appendChild(actions);
-
-        return row;
-    }
-
-    function saveForm() {
-        const config = configs[currentType];
-        if (!config) return;
-
-        const values = {};
-        let valid = true;
-
-        config.fields.forEach(function (field) {
-            const input = form.elements[field.key];
-            values[field.key] = input.value.trim();
-            if (!values[field.key]) valid = false;
-        });
-
-        if (!valid) return;
-
-        if (config.currency && values.price && values.price.indexOf(config.currency) !== 0) {
-            values.price = config.currency + values.price;
-        }
-
-        if (currentRow) {
-            config.columns.forEach(function (key) {
-                const cell = currentRow.querySelector('[data-field="' + key + '"]');
-                if (cell) cell.textContent = values[key];
-            });
-        } else {
-            const tbody = document.getElementById(config.tbody);
-            if (tbody) tbody.appendChild(buildRow(config, values));
-        }
-
-        closeModal();
-    }
-
-    function setStatus(row, text, color) {
-        const statusCell = row.querySelector('.status-cell');
-        if (statusCell) {
-            statusCell.innerHTML = '<span class="badge badge-' + color + '">' + text + '</span>';
-        }
-
-        row.querySelectorAll('[data-confirm], [data-cancel]').forEach(function (button) {
-            button.disabled = true;
-        });
-    }
-
-    document.addEventListener('click', function (event) {
-        const formButton = event.target.closest('[data-open-form]');
-        if (formButton) {
-            closeDropdown();
-            openForm(formButton.dataset.openForm, null);
             return;
         }
+        showBanner('Not connected to the backend.' + SERVER_HINT);
+        return;
+    }
 
-        const addButton = event.target.closest('[data-add]');
-        if (addButton) {
-            openForm(addButton.dataset.add, null);
-            return;
-        }
-
-        const editButton = event.target.closest('[data-edit]');
-        if (editButton) {
-            const row = editButton.closest('tr');
-            const table = row.closest('table');
-            openForm(table.dataset.entity, row);
-            return;
-        }
-
-        const deleteButton = event.target.closest('[data-delete]');
-        if (deleteButton) {
-            deleteButton.closest('tr').remove();
-            return;
-        }
-
-        const confirmButton = event.target.closest('[data-confirm]');
-        if (confirmButton) {
-            setStatus(confirmButton.closest('tr'), 'Confirmed', 'green');
-            return;
-        }
-
-        const cancelButton = event.target.closest('[data-cancel]');
-        if (cancelButton) {
-            setStatus(cancelButton.closest('tr'), 'Cancelled', 'red');
-            return;
-        }
-
-        if (event.target.closest('[data-close]')) {
-            closeModal();
-        }
-    });
-
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
-        saveForm();
-    });
+    if (currentUser.role !== 'admin') {
+        window.location.replace('../../index.html');
+        return;
+    }
 
     const avatar = document.getElementById('admin-avatar');
+    if (avatar) avatar.textContent = initials(currentUser.full_name);
+
+    /* ===== avatar dropdown + logout ===== */
+
     const dropdown = document.getElementById('admin-dropdown');
     const logoutButton = document.getElementById('logout-btn');
 
@@ -260,11 +106,542 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (logoutButton) {
-        logoutButton.addEventListener('click', function () {
-            try {
-                sessionStorage.removeItem('fitspot-admin');
-            } catch (error) {}
+        logoutButton.addEventListener('click', async function () {
+            try { await apiCall('POST', 'logout.php'); } catch (error) {}
             window.location.replace('../../index.html');
         });
     }
+
+    /* ===== page data loaders ===== */
+
+    async function loadDashboard() {
+        const membersEl = document.getElementById('stat-total-members');
+        if (!membersEl) return;
+
+        try {
+            const data = await apiCall('GET', 'stats.php');
+            membersEl.textContent = data.stats.total_members;
+            document.getElementById('stat-total-plans').textContent = data.stats.total_plans;
+            document.getElementById('stat-total-classes').textContent = data.stats.total_classes;
+            document.getElementById('stat-pending').textContent = data.stats.pending_reservations;
+
+            const tbody = document.getElementById('tbody-recent');
+            if (tbody) {
+                if (!data.recent.length) {
+                    errorRow(tbody, 4, 'No reservations yet.');
+                } else {
+                    tbody.innerHTML = data.recent.map(function (row) {
+                        return '<tr>' +
+                            '<td>' + esc(row.member) + '</td>' +
+                            '<td>' + esc(row.class_name) + '</td>' +
+                            '<td>' + esc(row.schedule) + '</td>' +
+                            '<td><span class="badge ' + row.status_color + '">' + esc(row.status_label) + '</span></td>' +
+                            '</tr>';
+                    }).join('');
+                }
+            }
+        } catch (error) {
+            showBanner('Dashboard could not be loaded.' + SERVER_HINT);
+        }
+    }
+
+    async function loadPlans() {
+        const tbody = document.getElementById('tbody-plans');
+        if (!tbody) return;
+
+        try {
+            const data = await apiCall('GET', 'plans.php');
+            if (!data.plans.length) {
+                errorRow(tbody, 4, 'No membership plans yet. Use "+ Add Plan" to create one.');
+                return;
+            }
+            tbody.innerHTML = data.plans.map(function (plan) {
+                return '<tr data-id="' + plan.id + '">' +
+                    '<td data-field="name">' + esc(plan.name) + '</td>' +
+                    '<td data-field="price">' + peso(plan.price) + '</td>' +
+                    '<td data-field="inclusions">' + esc(plan.inclusions) + '</td>' +
+                    '<td>' +
+                        '<button type="button" class="btn-sm btn-edit" data-edit>Edit</button>' +
+                        '<button type="button" class="btn-sm btn-delete" data-delete>Delete</button>' +
+                    '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (error) {
+            errorRow(tbody, 4, 'Plans could not be loaded.' + SERVER_HINT);
+        }
+    }
+
+    async function loadClasses() {
+        const tbody = document.getElementById('tbody-classes');
+        if (!tbody) return;
+
+        try {
+            const data = await apiCall('GET', 'classes.php');
+            if (!data.classes.length) {
+                errorRow(tbody, 4, 'No fitness classes yet. Use "+ Add Class" to create one.');
+                return;
+            }
+            tbody.innerHTML = data.classes.map(function (fitnessClass) {
+                return '<tr data-id="' + fitnessClass.id + '">' +
+                    '<td data-field="name">' + esc(fitnessClass.name) + '</td>' +
+                    '<td data-field="description">' + esc(fitnessClass.description) + '</td>' +
+                    '<td data-field="capacity">' + fitnessClass.capacity + ' slots</td>' +
+                    '<td>' +
+                        '<button type="button" class="btn-sm btn-edit" data-edit>Edit</button>' +
+                        '<button type="button" class="btn-sm btn-delete" data-delete>Delete</button>' +
+                    '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (error) {
+            errorRow(tbody, 4, 'Classes could not be loaded.' + SERVER_HINT);
+        }
+    }
+
+    async function loadSchedules() {
+        const tbody = document.getElementById('tbody-schedules');
+        if (!tbody) return;
+
+        try {
+            const data = await apiCall('GET', 'schedules.php?all=1');
+            if (!data.schedules.length) {
+                errorRow(tbody, 5, 'No class schedules yet. Use "+ Add Schedule" to create one.');
+                return;
+            }
+            tbody.innerHTML = data.schedules.map(function (slot) {
+                return '<tr data-id="' + slot.schedule_id + '">' +
+                    '<td>' + esc(slot.class_name) + '</td>' +
+                    '<td>' + esc(slot.schedule) + '</td>' +
+                    '<td class="slot-cell">' +
+                        '<span class="slot-text">' + slot.booked + ' of ' + slot.capacity + ' booked</span>' +
+                        '<div class="slot-bar' + (slot.percent >= 100 ? ' is-full' : '') + '">' +
+                            '<span style="width: ' + slot.percent + '%;"></span>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td><span class="badge ' + slot.slot_color + '">' + esc(slot.slot_label) + '</span></td>' +
+                    '<td>' +
+                        '<button type="button" class="btn-sm btn-delete" data-delete>Delete</button>' +
+                    '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (error) {
+            errorRow(tbody, 5, 'Schedules could not be loaded.' + SERVER_HINT);
+        }
+    }
+
+    async function loadMembers() {
+        const tbody = document.getElementById('tbody-members');
+        if (!tbody) return;
+
+        try {
+            const data = await apiCall('GET', 'members.php');
+            if (!data.members.length) {
+                errorRow(tbody, 5, 'No members registered yet.');
+                return;
+            }
+            tbody.innerHTML = data.members.map(function (member) {
+                return '<tr data-id="' + member.id + '">' +
+                    '<td>' + esc(member.full_name) + '</td>' +
+                    '<td>' + esc(member.email) + '</td>' +
+                    '<td>' + esc(member.plan) + '</td>' +
+                    '<td><span class="badge ' + member.status_color + '">' + esc(member.status_label) + '</span></td>' +
+                    '<td>' +
+                        '<button type="button" class="btn-sm btn-delete" data-delete>Remove</button>' +
+                    '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (error) {
+            errorRow(tbody, 5, 'Members could not be loaded.' + SERVER_HINT);
+        }
+    }
+
+    async function loadReservations() {
+        const tbody = document.getElementById('tbody-reservations');
+        if (!tbody) return;
+
+        try {
+            const data = await apiCall('GET', 'reservations.php');
+            if (!data.reservations.length) {
+                errorRow(tbody, 5, 'No reservations yet.');
+                return;
+            }
+            tbody.innerHTML = data.reservations.map(function (row) {
+                const done = row.status !== 'pending';
+                return '<tr data-id="' + row.id + '">' +
+                    '<td>' + esc(row.member) + '</td>' +
+                    '<td>' + esc(row.class_name) + '</td>' +
+                    '<td>' + esc(row.schedule) + '</td>' +
+                    '<td class="status-cell"><span class="badge ' + row.status_color + '">' + esc(row.status_label) + '</span></td>' +
+                    '<td>' +
+                        '<button type="button" class="btn-sm btn-confirm" data-confirm' + (done ? ' disabled' : '') + '>Confirm</button>' +
+                        '<button type="button" class="btn-sm btn-delete" data-cancel' + (done ? ' disabled' : '') + '>Cancel</button>' +
+                    '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (error) {
+            errorRow(tbody, 5, 'Reservations could not be loaded.' + SERVER_HINT);
+        }
+    }
+
+    /* ===== form modal ===== */
+
+    const modal = document.getElementById('admin-form-modal');
+    const modalTitle = document.getElementById('admin-modal-title');
+    const form = document.getElementById('admin-form');
+    const fieldsWrap = form.querySelector('.form-fields');
+
+    const modalMessage = document.createElement('p');
+    modalMessage.className = 'form-message';
+    modalMessage.id = 'admin-modal-message';
+    modalMessage.hidden = true;
+    modal.querySelector('.modal-body').insertBefore(modalMessage, form);
+
+    let currentType = null;
+    let currentRow = null;
+
+    const configs = {
+        plan: {
+            label: 'Membership Plan',
+            fields: [
+                { key: 'name', label: 'Plan Name', type: 'text', placeholder: 'e.g. Premium Plan' },
+                { key: 'price', label: 'Price per Month', type: 'number', placeholder: 'e.g. 1499' },
+                { key: 'inclusions', label: 'Inclusions', type: 'text', placeholder: 'e.g. Gym access plus selected classes' }
+            ]
+        },
+        class: {
+            label: 'Fitness Class',
+            fields: [
+                { key: 'name', label: 'Class Name', type: 'text', placeholder: 'e.g. Pilates' },
+                { key: 'description', label: 'Description', type: 'text', placeholder: 'e.g. Core-focused low impact workout.' },
+                { key: 'capacity', label: 'Available Slots', type: 'number', placeholder: 'e.g. 10' }
+            ]
+        },
+        schedule: {
+            label: 'Class Schedule',
+            fields: [
+                { key: 'class_id', label: 'Class', type: 'select' },
+                { key: 'schedule_date', label: 'Date', type: 'date' },
+                { key: 'start_time', label: 'Start Time', type: 'time' },
+                { key: 'end_time', label: 'End Time', type: 'time' },
+                { key: 'capacity', label: 'Slots', type: 'number', placeholder: 'e.g. 10' }
+            ]
+        },
+        profile: {
+            label: 'My Profile',
+            formTitle: 'My Profile',
+            fields: [
+                { key: 'full_name', label: 'Full Name', type: 'text' },
+                { key: 'email', label: 'Email', type: 'email' },
+                { key: 'phone', label: 'Contact Number', type: 'text' }
+            ]
+        },
+        settings: {
+            label: 'Settings',
+            formTitle: 'Settings',
+            fields: [
+                { key: 'gym', label: 'Gym Name', type: 'text', value: 'FitSpot' },
+                { key: 'hours', label: 'Operating Hours', type: 'text', value: 'Monday - Saturday, 6:00 AM - 9:00 PM' },
+                { key: 'slots', label: 'Max Slots per Class', type: 'number', value: '10' }
+            ]
+        }
+    };
+
+    function openModal() {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        const firstInput = fieldsWrap.querySelector('input, select');
+        if (firstInput) firstInput.focus();
+    }
+
+    function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        currentType = null;
+        currentRow = null;
+        modalMessage.hidden = true;
+    }
+
+    function setModalMessage(text, ok) {
+        modalMessage.textContent = text;
+        modalMessage.classList.toggle('is-success', Boolean(ok));
+        modalMessage.hidden = false;
+    }
+
+    async function openForm(type, row) {
+        const config = configs[type];
+        if (!config) return;
+
+        currentType = type;
+        currentRow = row || null;
+        modalTitle.textContent = row
+            ? 'Edit ' + config.label
+            : (config.formTitle || 'Add ' + config.label);
+        fieldsWrap.innerHTML = '';
+        modalMessage.hidden = true;
+
+        let selectOptions = null;
+        if (type === 'schedule') {
+            try {
+                const data = await apiCall('GET', 'classes.php');
+                selectOptions = data.classes.map(function (fitnessClass) {
+                    return { value: String(fitnessClass.id), label: fitnessClass.name };
+                });
+            } catch (error) {
+                setModalMessage('Classes could not be loaded.' + SERVER_HINT, false);
+            }
+        }
+
+        for (const field of config.fields) {
+            const inputId = 'admin-field-' + field.key;
+
+            const label = document.createElement('label');
+            label.setAttribute('for', inputId);
+            label.textContent = field.label + ':';
+
+            let input;
+
+            if (field.type === 'select') {
+                input = document.createElement('select');
+                (selectOptions || []).forEach(function (optionData) {
+                    const option = document.createElement('option');
+                    option.value = optionData.value;
+                    option.textContent = optionData.label;
+                    input.appendChild(option);
+                });
+                if (!selectOptions) {
+                    const option = document.createElement('option');
+                    option.textContent = 'No classes available';
+                    input.appendChild(option);
+                }
+            } else {
+                input = document.createElement('input');
+                input.type = field.type;
+                if (field.placeholder) input.placeholder = field.placeholder;
+                if (field.type === 'number') input.min = '0';
+            }
+
+            input.id = inputId;
+            input.name = field.key;
+            input.required = true;
+
+            if (row) {
+                const cell = row.querySelector('[data-field="' + field.key + '"]');
+                if (cell) {
+                    input.value = field.type === 'number'
+                        ? cell.textContent.replace(/\D/g, '')
+                        : cell.textContent;
+                }
+            } else if (type === 'profile' && currentUser) {
+                input.value = currentUser[field.key] || '';
+            } else if (field.value !== undefined) {
+                input.value = field.value;
+            }
+
+            fieldsWrap.appendChild(label);
+            fieldsWrap.appendChild(input);
+        }
+
+        openModal();
+    }
+
+    async function saveForm() {
+        const config = configs[currentType];
+        if (!config) return;
+
+        const values = {};
+        let valid = true;
+
+        config.fields.forEach(function (field) {
+            const input = form.elements[field.key];
+            values[field.key] = input ? String(input.value).trim() : '';
+            if (!values[field.key]) valid = false;
+        });
+
+        if (!valid) {
+            setModalMessage('Please fill in all fields.', false);
+            return;
+        }
+
+        try {
+            if (currentType === 'plan') {
+                const body = {
+                    name: values.name,
+                    price: values.price,
+                    inclusions: values.inclusions
+                };
+                if (currentRow) {
+                    body.id = Number(currentRow.dataset.id);
+                    await apiCall('PUT', 'plans.php', body);
+                } else {
+                    await apiCall('POST', 'plans.php', body);
+                }
+                closeModal();
+                loadPlans();
+                return;
+            }
+
+            if (currentType === 'class') {
+                const body = {
+                    name: values.name,
+                    description: values.description,
+                    capacity: values.capacity
+                };
+                if (currentRow) {
+                    body.id = Number(currentRow.dataset.id);
+                    await apiCall('PUT', 'classes.php', body);
+                } else {
+                    await apiCall('POST', 'classes.php', body);
+                }
+                closeModal();
+                loadClasses();
+                return;
+            }
+
+            if (currentType === 'schedule') {
+                await apiCall('POST', 'schedules.php', {
+                    class_id: Number(values.class_id),
+                    schedule_date: values.schedule_date,
+                    start_time: values.start_time,
+                    end_time: values.end_time,
+                    capacity: values.capacity
+                });
+                closeModal();
+                loadSchedules();
+                return;
+            }
+
+            if (currentType === 'profile') {
+                const updated = await apiCall('POST', 'profile.php', {
+                    full_name: values.full_name,
+                    email: values.email,
+                    phone: values.phone,
+                    address: currentUser.address || ''
+                });
+                currentUser.full_name = values.full_name;
+                currentUser.email = values.email;
+                currentUser.phone = values.phone;
+                if (avatar) avatar.textContent = initials(currentUser.full_name);
+                setModalMessage('Profile updated successfully.', true);
+                return;
+            }
+
+            if (currentType === 'settings') {
+                setModalMessage('Settings are not stored yet - there is no settings table in the database.', false);
+                return;
+            }
+        } catch (error) {
+            setModalMessage(error.message, false);
+        }
+    }
+
+    /* ===== actions ===== */
+
+    async function deleteEntity(entity, id) {
+        const endpoints = {
+            plan: { file: 'plans.php', noun: 'plan' },
+            class: { file: 'classes.php', noun: 'class' },
+            schedule: { file: 'schedules.php', noun: 'schedule' },
+            member: { file: 'members.php', noun: 'member' }
+        };
+        const endpoint = endpoints[entity];
+        if (!endpoint) return;
+
+        if (!window.confirm('Delete this ' + endpoint.noun + '? This cannot be undone.')) return;
+
+        try {
+            await apiCall('DELETE', endpoint.file, { id: id });
+        } catch (error) {
+            showBanner(error.message);
+            return;
+        }
+        showBanner('');
+        const banner = document.getElementById('api-error-banner');
+        if (banner) banner.hidden = true;
+
+        if (entity === 'plan') loadPlans();
+        if (entity === 'class') loadClasses();
+        if (entity === 'schedule') loadSchedules();
+        if (entity === 'member') loadMembers();
+    }
+
+    async function setReservation(row, action) {
+        try {
+            const data = await apiCall('POST', 'reservations.php', {
+                id: Number(row.dataset.id),
+                action: action
+            });
+            const statusCell = row.querySelector('.status-cell');
+            if (statusCell) {
+                statusCell.innerHTML = '<span class="badge ' + data.status_color + '">' +
+                    esc(data.status_label) + '</span>';
+            }
+            row.querySelectorAll('[data-confirm], [data-cancel]').forEach(function (button) {
+                button.disabled = true;
+            });
+        } catch (error) {
+            showBanner(error.message);
+        }
+    }
+
+    document.addEventListener('click', function (event) {
+        const formButton = event.target.closest('[data-open-form]');
+        if (formButton) {
+            closeDropdown();
+            openForm(formButton.dataset.openForm, null);
+            return;
+        }
+
+        const addButton = event.target.closest('[data-add]');
+        if (addButton) {
+            openForm(addButton.dataset.add, null);
+            return;
+        }
+
+        const editButton = event.target.closest('[data-edit]');
+        if (editButton) {
+            const row = editButton.closest('tr');
+            const table = row.closest('table');
+            openForm(table.dataset.entity, row);
+            return;
+        }
+
+        const deleteButton = event.target.closest('[data-delete]');
+        if (deleteButton) {
+            const row = deleteButton.closest('tr');
+            const table = row.closest('table');
+            deleteEntity(table.dataset.entity, Number(row.dataset.id));
+            return;
+        }
+
+        const confirmButton = event.target.closest('[data-confirm]');
+        if (confirmButton) {
+            setReservation(confirmButton.closest('tr'), 'confirm');
+            return;
+        }
+
+        const cancelButton = event.target.closest('[data-cancel]');
+        if (cancelButton) {
+            setReservation(cancelButton.closest('tr'), 'cancel');
+            return;
+        }
+
+        if (event.target.closest('[data-close]')) {
+            closeModal();
+        }
+    });
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        saveForm();
+    });
+
+    /* ===== boot ===== */
+
+    await Promise.all([
+        loadDashboard(),
+        loadPlans(),
+        loadClasses(),
+        loadSchedules(),
+        loadMembers(),
+        loadReservations()
+    ]);
 });

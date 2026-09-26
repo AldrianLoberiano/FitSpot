@@ -16,10 +16,10 @@ FitSpot is a website where users can check gym membership plans, view available 
 
 Demo accounts (no database yet - login is handled in `js/script.js`):
 
-| Role   | Email             | Password  | Redirect            |
-|--------|-------------------|-----------|---------------------|
-| Admin  | admin@fitspot.com | admin123  | Admin panel         |
-| Member | member@fitspot.com| member123 | Member portal       |
+| Role   | Email              | Password  | Redirect      |
+|--------|--------------------|-----------|---------------|
+| Admin  | admin@fitspot.com  | admin123  | Admin panel   |
+| Member | member@fitspot.com | member123 | Member portal |
 
 Note: Register is UI-only, so new member accounts cannot log in yet - use the demo member account above.
 

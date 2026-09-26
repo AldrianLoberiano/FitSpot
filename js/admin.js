@@ -474,6 +474,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
+        const isUpdate = Boolean(currentRow);
+
         try {
             if (currentType === 'plan') {
                 const body = {
@@ -487,6 +489,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 } else {
                     await apiCall('POST', 'plans.php', body);
                 }
+                toast.success(isUpdate ? 'Updated successfully.' : 'Saved successfully.');
                 closeModal();
                 loadPlans();
                 return;
@@ -504,6 +507,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 } else {
                     await apiCall('POST', 'classes.php', body);
                 }
+                toast.success(isUpdate ? 'Updated successfully.' : 'Saved successfully.');
                 closeModal();
                 loadClasses();
                 return;
@@ -517,6 +521,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     end_time: values.end_time,
                     capacity: values.capacity
                 });
+                toast.success('Saved successfully.');
                 closeModal();
                 loadSchedules();
                 return;

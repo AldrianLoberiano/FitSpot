@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../images/fitstop_white_logo.png" type="image/png">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/user.css">
+    <title>Profile - FitSpot Member</title>
+</head>
+<body class="admin-body user-body">
+<div class="admin-layout">
+
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../images/fitstop_white_logo.png" alt="FitSpot">
+            <span>Member</span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="dashboard.html">Overview</a>
+            <a href="memberships.html">Membership Plans</a>
+            <a href="classes.html">Fitness Classes</a>
+            <a href="bookings.html">My Bookings</a>
+            <a href="profile.html" class="is-active" aria-current="page">Profile</a>
+        </nav>
+    </div>
+
+    <div class="admin-main">
+        <header class="topbar">
+            <h1 id="user-page-title">Profile</h1>
+
+            <div class="topbar-actions">
+                <span class="admin-badge">Member</span>
+
+                <div class="admin-user">
+                    <button type="button" class="admin-avatar" id="user-avatar" aria-haspopup="true" aria-expanded="false">JD</button>
+
+                    <div class="admin-dropdown" id="user-dropdown" hidden>
+                        <a class="dropdown-item" href="profile.html">Profile</a>
+                        <a class="dropdown-item" href="bookings.html">My Bookings</a>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item is-danger" id="user-logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- ===== PROFILE ===== -->
+            <section class="admin-view is-active" id="view-profile">
+                <div class="section-head">
+                    <div>
+                        <h2>Profile</h2>
+                        <p>Manage your personal information and membership</p>
+                    </div>
+                </div>
+
+                <div class="profile-grid">
+                    <form class="form-card" id="profile-form">
+                        <h3>Personal Information</h3>
+
+                        <label for="profile-name">Full Name:</label>
+                        <input type="text" id="profile-name" name="name" value="Juan Dela Cruz" autocomplete="name">
+
+                        <label for="profile-email">Email:</label>
+                        <input type="email" id="profile-email" name="email" value="member@fitspot.com" autocomplete="email">
+
+                        <label for="profile-phone">Contact Number:</label>
+                        <input type="tel" id="profile-phone" name="phone" value="+63 917 123 4567" autocomplete="tel">
+
+                        <label for="profile-address">Address:</label>
+                        <input type="text" id="profile-address" name="address" value="Cebu City, Philippines" autocomplete="street-address">
+
+                        <button type="submit">Save Changes</button>
+
+                        <p class="form-message is-success" id="profile-message" hidden></p>
+                    </form>
+
+                    <div class="form-card">
+                        <h3>Membership</h3>
+
+                        <dl class="membership-list">
+                            <div>
+                                <dt>Plan</dt>
+                                <dd id="profile-plan">Premium Plan</dd>
+                            </div>
+                            <div>
+                                <dt>Status</dt>
+                                <dd><span class="badge badge-green">Active</span></dd>
+                            </div>
+                            <div>
+                                <dt>Member Since</dt>
+                                <dd>January 15, 2026</dd>
+                            </div>
+                            <div>
+                                <dt>Expires On</dt>
+                                <dd>October 15, 2026</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<script src="../../js/user.js" defer></script>
+</body>
+</html>

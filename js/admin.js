@@ -120,6 +120,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (logoutButton) {
         logoutButton.addEventListener('click', async function () {
+            const confirmed = await confirmDialog(
+                'Confirm Logout',
+                'Are you sure you want to logout?',
+                'Logout'
+            );
+            if (!confirmed) return;
             try { await apiCall('POST', 'logout.php'); } catch (error) {}
             window.location.replace('../../index.html');
         });
@@ -554,51 +560,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     /* ===== actions ===== */
-
-    function confirmDialog(title, message, confirmLabel) {
-        return new Promise(function (resolve) {
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay is-open';
-            overlay.id = 'confirm-modal';
-            overlay.setAttribute('aria-hidden', 'false');
-            overlay.innerHTML =
-                '<div class="modal auth-card" role="alertdialog" aria-modal="true"' +
-                ' aria-labelledby="confirm-title" aria-describedby="confirm-text">' +
-                    '<div class="modal-body">' +
-                        '<h2 id="confirm-title"></h2>' +
-                        '<p class="confirm-text" id="confirm-text"></p>' +
-                        '<div class="form-actions">' +
-                            '<button type="button" class="btn-cancel" data-confirm-no>Cancel</button>' +
-                            '<button type="button" class="btn-delete" data-confirm-yes></button>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-            overlay.querySelector('#confirm-title').textContent = title;
-            overlay.querySelector('#confirm-text').textContent = message;
-            overlay.querySelector('[data-confirm-yes]').textContent = confirmLabel;
-            document.body.appendChild(overlay);
-
-            function finish(result) {
-                document.removeEventListener('keydown', onKeydown, true);
-                overlay.remove();
-                resolve(result);
-            }
-
-            function onKeydown(event) {
-                if (event.key === 'Escape') finish(false);
-            }
-
-            overlay.addEventListener('click', function (event) {
-                if (event.target === overlay || event.target.closest('[data-confirm-no]')) {
-                    finish(false);
-                } else if (event.target.closest('[data-confirm-yes]')) {
-                    finish(true);
-                }
-            });
-            document.addEventListener('keydown', onKeydown, true);
-            overlay.querySelector('[data-confirm-no]').focus();
-        });
-    }
 
     async function deleteEntity(entity, id) {
         const endpoints = {

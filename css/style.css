@@ -809,7 +809,6 @@ footer p {
     color: #f8fafc;
     padding: 12px 16px;
     border-radius: 8px;
-    border-left: 4px solid #94a3b8;
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.22);
     font-size: 13.5px;
     line-height: 1.45;
@@ -821,18 +820,6 @@ footer p {
 .toast:focus-visible {
     outline: 2px solid #38bdf8;
     outline-offset: 2px;
-}
-
-.toast--success {
-    border-left-color: #22c55e;
-}
-
-.toast--error {
-    border-left-color: #ef4444;
-}
-
-.toast--warning {
-    border-left-color: #f59e0b;
 }
 
 .toast.is-leaving {

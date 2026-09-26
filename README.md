@@ -12,6 +12,17 @@ _(To be added)_
 
 FitSpot is a website where users can check gym membership plans, view available fitness classes, and book their preferred schedule online. It makes it easier for both members and gym staff to manage memberships and class reservations.
 
+## Login Credentials
+
+Demo accounts (no database yet - login is handled in `js/script.js`):
+
+| Role   | Email             | Password  | Redirect            |
+|--------|-------------------|-----------|---------------------|
+| Admin  | admin@fitspot.com | admin123  | Admin panel         |
+| Member | member@fitspot.com| member123 | Member portal       |
+
+Note: Register is UI-only, so new member accounts cannot log in yet - use the demo member account above.
+
 ## Main Features
 
 - User registration and login (Need to implement database for this  )
@@ -36,15 +47,15 @@ The website is simple and manageable to develop but still has enough features fo
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 1 | User registration and login | Partial | Login popup + `pages/login.html` with demo admin login (`admin@fitspot.com` / `admin123`), session flag, and admin page guard; Register is UI-only, no backend/member accounts |
-| 2 | View membership plans, prices, and inclusions | Partial | Plans shown on the site (Basic ₱999, Premium ₱1,499); admin can add/edit/delete them in-session (not saved after refresh) |
-| 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Partial | Zumba, Yoga, and Strength Training listed on the site; **Pilates and Boxing still missing** (admin can add them in the panel) |
-| 4 | View available dates, times, and slots | Partial | Site schedule is static; admin panel shows per-class slot usage bars (booked/capacity) |
-| 5 | Book or cancel a class | Not started | Booking/cancel buttons and forms exist but have no functionality |
-| 6 | View upcoming bookings | Not started | "My Bookings" section shows placeholder text only |
+| 1 | User registration and login | Partial | Login popup + `pages/login.html` with demo logins (admin `admin@fitspot.com` / `admin123`, member `member@fitspot.com` / `member123`), session flags, and page guards for the admin panel and member portal; Register is UI-only, no backend/member accounts |
+| 2 | View membership plans, prices, and inclusions | Partial | Plans shown on the site (Basic ₱999, Premium ₱1,499); admin can add/edit/delete them in-session (not saved after refresh); member portal has plan cards with inclusions and a choose-plan demo |
+| 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Partial | Zumba, Yoga, and Strength Training listed on the site and in the member portal; **Pilates and Boxing still missing** (admin can add them in the panel) |
+| 4 | View available dates, times, and slots | Partial | Site schedule is static; admin panel and member portal show per-class slot usage bars (booked/capacity) |
+| 5 | Book or cancel a class | Partial | Member portal (`pages/users/dashboard.html`) can book and cancel classes client-side (session-only demo, no database); main site booking form still has no functionality |
+| 6 | View upcoming bookings | Partial | Member portal "My Bookings" view with statuses, cancel buttons, and empty state; demo data resets on refresh |
 | 7 | Admin: add, edit, remove membership plans and classes | Partial | Working client-side add/edit/delete with modal forms in `pages/admin/dashboard.html` - no database persistence yet |
 | 8 | Admin: manage schedules, members, and reservations | Partial | Admin tables with delete, confirm/cancel actions - no database persistence yet |
-| 9 | Monitor available slots to avoid overbooking | Partial | Admin slot usage bars with Open/Full status; not yet enforced during booking |
+| 9 | Monitor available slots to avoid overbooking | Partial | Slot usage bars with Open/Full status in admin panel and member portal; enforced when a member books (full classes are disabled), not yet on the main site booking form |
 
 ### Completed So Far
 
@@ -53,15 +64,16 @@ The website is simple and manageable to develop but still has enough features fo
 - Sticky responsive header
 - Full-screen responsive hero with badge, headline, CTAs, and stats
 - Automatic image carousel in the hero (3 slides, dots, 3-second autoplay)
-- Login/Register popup with branding panel and demo admin credentials
+- Login/Register popup with branding panel and demo admin/member credentials
 - Admin panel: sidebar tabs, dashboard stats, plans/classes CRUD (client-side), schedules with slot bars, members, reservations (confirm/cancel), avatar menu (Profile, Settings, Logout)
+- Member portal (`pages/users/dashboard.html`): overview stats, membership plan cards with choose-plan demo, class browsing with slot bars, book/cancel with statuses, My Bookings table with empty state, profile form (all client-side)
 - Feature-folder structure (`css/`, `js/`, `images/`, `pages/admin/`, `pages/users/`)
 
 ## Tech Stack (Current)
 
 - HTML5
 - CSS3
-- JavaScript (login demo, modals, hero carousel, admin panel)
+- JavaScript (login demo, modals, hero carousel, admin panel, member portal)
 
 _Planned: a backend/database for accounts, bookings, and admin CRUD._
 
@@ -73,7 +85,8 @@ FitSpot/
 ├── README.md
 ├── css/
 │   ├── style.css            # Site styles
-│   └── admin.css            # Admin panel styles
+│   ├── admin.css            # Admin panel styles
+│   └── user.css             # Member portal styles
 ├── images/
 │   ├── fitstop_white_logo.png   # Header/logo image
 │   ├── fitstop_logo_trans.png   # Logo with transparent background
@@ -82,12 +95,14 @@ FitSpot/
 │   └── kettlebellswings.jpg     # Hero carousel slide 3
 ├── js/
 │   ├── script.js           # Login/Register popup + hero carousel logic
-│   └── admin.js            # Admin panel logic (tabs, CRUD demo)
+│   ├── admin.js            # Admin panel logic (tabs, CRUD demo)
+│   └── user.js             # Member portal logic (tabs, booking/cancel demo)
 └── pages/
     ├── login.html          # Standalone login / registration page
     ├── admin/
     │   └── dashboard.html  # Admin panel (plans, classes, schedules, members, reservations)
-    └── users/              # User/member pages (bookings, account) - planned
+    └── users/
+        └── dashboard.html  # Member portal (overview, plans, classes, my bookings, profile)
 ```
 
 ## Development Progress Tracking

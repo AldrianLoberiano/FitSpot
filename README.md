@@ -14,22 +14,39 @@ FitSpot is a website where users can check gym membership plans, view available 
 
 ## Login Credentials
 
-Demo accounts (login is still handled client-side in `js/script.js`; the same accounts are seeded in the MySQL database):
+Demo accounts (login is checked against the MySQL `users` table by `api/login.php`):
 
 | Role   | Email              | Password  | Redirect      |
 |--------|--------------------|-----------|---------------|
 | Admin  | admin@fitspot.com  | admin123  | Admin panel   |
 | Member | member@fitspot.com | member123 | Member portal |
 
-Note: Register is UI-only, so new member accounts cannot log in yet - use the demo member account above.
+Extra seeded members (for the admin Members page): `maria@email.com` / `maria123`, `pedro@email.com` / `pedro123`.
+
+Register now creates real member accounts (bcrypt-hashed passwords) - new accounts can log in right away.
+
+## How to Run
+
+The site must be **served over HTTP** (the pages talk to a PHP API; opening `index.html` as a file shows an error banner):
+
+```bash
+# 1. Start MySQL (Laragon) and import the database once:
+mysql -u root -p < database/fitspot.sql
+
+# 2. Start the PHP server from the project root (Laragon ships PHP 8.1):
+php -S localhost:8000
+
+# 3. Open the site:
+#    http://localhost:8000
+```
 
 ## Main Features
 
-- User registration and login (MySQL database ready - see [Database](#database); pages not connected yet)
-- View membership plans, prices, and inclusions
+- User registration and login (connected to MySQL via `api/login.php` and `api/register.php`)
+- View membership plans, prices, and inclusions (live from the `membership_plans` table)
 - Browse fitness classes such as Zumba, Yoga, Pilates, Boxing, and Strength Training
-- View available dates, times, and slots
-- Book or cancel a class
+- View available dates, times, and slots (live from `class_schedules` with real booked counts)
+- Book or cancel a class (capacity and duplicate-booking rules enforced in a MySQL transaction)
 - View upcoming bookings
 - Admin can add, edit, or remove membership plans and classes
 - Admin can manage schedules, members, and reservations
@@ -47,15 +64,15 @@ The website is simple and manageable to develop but still has enough features fo
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 1 | User registration and login | Partial | Login popup + `pages/login.html` with demo logins (admin `admin@fitspot.com` / `admin123`, member `member@fitspot.com` / `member123`), session flags, and page guards for the admin panel and member portal; Register is UI-only - `users` table is ready in `database/fitspot.sql` but not connected yet |
-| 2 | View membership plans, prices, and inclusions | Partial | Plans shown on the site (Basic ₱999, Premium ₱1,499); admin can add/edit/delete them in-session (not saved after refresh); member portal has plan cards with inclusions and a choose-plan demo; `membership_plans` table ready |
-| 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Partial | Zumba, Yoga, and Strength Training listed on the site and in the member portal; **Pilates and Boxing still missing on the pages** (all 5 are seeded in the `fitness_classes` table) |
-| 4 | View available dates, times, and slots | Partial | Site schedule is static; admin panel and member portal show per-class slot usage bars (booked/capacity); `class_schedules` table ready |
-| 5 | Book or cancel a class | Partial | Member portal (`pages/users/classes.html` + `pages/users/bookings.html`) can book and cancel classes client-side (demo state kept in `sessionStorage` so it survives page navigation, resets on logout/close); `bookings` table ready with capacity/overbooking rules - no backend yet; main site booking form still has no functionality |
-| 6 | View upcoming bookings | Partial | Member portal "My Bookings" page with statuses, cancel buttons, and empty state; upcoming-bookings query documented in `database/database.md` |
-| 7 | Admin: add, edit, remove membership plans and classes | Partial | Working client-side add/edit/delete with modal forms on `pages/admin/memberships.html` and `pages/admin/classes.html` - tables exist in MySQL but the panel is not connected yet |
-| 8 | Admin: manage schedules, members, and reservations | Partial | Each section is its own page (`pages/admin/schedules.html`, `members.html`, `reservations.html`) with delete and confirm/cancel actions - same tables exist in MySQL (`class_schedules`, `users`, `memberships`, `bookings`), not connected yet |
-| 9 | Monitor available slots to avoid overbooking | Partial | Slot usage bars with Open/Full status in admin panel and member portal; enforced when a member books (full classes are disabled); `v_slot_usage` view ready for the real counts |
+| 1 | User registration and login | Connected | Login popup + `pages/login.html` authenticate against the `users` table (`api/login.php`, bcrypt `password_verify`, PHP sessions); Register creates real accounts (`api/register.php`); admin/member pages are guarded by `api/me.php` |
+| 2 | View membership plans, prices, and inclusions | Connected | Homepage, member portal, and admin panel all load plans from `membership_plans` (`api/plans.php`); admin CRUD is persisted; members switch plans via `api/membership.php` (updates `memberships`) |
+| 3 | Browse fitness classes (Zumba, Yoga, Pilates, Boxing, Strength Training) | Connected | All 5 classes load from `fitness_classes` on the homepage and member portal (Pilates and Boxing gap fixed); admin CRUD persisted via `api/classes.php` |
+| 4 | View available dates, times, and slots | Connected | Homepage schedule, admin schedules page, and member class cards show real dates/times with booked/capacity counts from `class_schedules` + `bookings` (`api/schedules.php`, `api/classes.php?upcoming=1`) |
+| 5 | Book or cancel a class | Connected | Member portal books by schedule and can cancel; the homepage booking form books by class + date; capacity, duplicates, and past schedules are enforced inside a MySQL transaction (`api/bookings.php`) |
+| 6 | View upcoming bookings | Connected | "My Bookings" and the overview table load real rows from `bookings` with statuses, cancel buttons, and an empty state |
+| 7 | Admin: add, edit, remove membership plans and classes | Connected | Modal forms on `pages/admin/memberships.html` and `classes.html` write to `membership_plans` / `fitness_classes` (`api/plans.php`, `api/classes.php`); deleting a plan used by members is blocked |
+| 8 | Admin: manage schedules, members, and reservations | Connected | Separate pages with add/delete schedules (`api/schedules.php`), member removal (`api/members.php`), and confirm/cancel reservations (`api/reservations.php`) |
+| 9 | Monitor available slots to avoid overbooking | Connected | Real booked/capacity counts everywhere; bookings are blocked at capacity inside a transaction with row locks |
 
 ### Completed So Far
 
@@ -65,19 +82,19 @@ The website is simple and manageable to develop but still has enough features fo
 - Full-screen responsive hero with badge, headline, CTAs, and stats
 - Automatic image carousel in the hero (4 slides, dots, 3-second autoplay)
 - Login/Register popup with branding panel and demo admin/member credentials
-- Admin panel (one HTML file per section): sidebar links, dashboard stats (`pages/admin/dashboard.html`), plans/classes CRUD with modal forms (`memberships.html`, `classes.html`), schedules with slot bars, members, reservations (confirm/cancel), avatar menu (Profile, Settings, Logout)
-- Member portal (one HTML file per section): overview stats (`pages/users/dashboard.html`), membership plan cards with choose-plan demo (`memberships.html`), class browsing with slot bars and book/cancel (`classes.html`), My Bookings table with empty state (`bookings.html`), profile form (`profile.html`) - demo state persists across pages in the same tab
-- MySQL database: feature-to-table design in `database/database.md`, importable schema + seed data in `database/fitspot.sql` (6 tables, slot-usage view, demo accounts)
-- Feature-folder structure (`css/`, `js/`, `images/`, `database/`, `pages/admin/`, `pages/users/`)
+- Admin panel (one HTML file per section): sidebar links, dashboard stats (`pages/admin/dashboard.html`), plans/classes CRUD with modal forms (`memberships.html`, `classes.html`), add/delete schedules with slot bars, members, reservations (confirm/cancel), avatar menu (Profile, Settings, Logout) - all backed by the PHP API
+- Member portal (one HTML file per section): overview stats (`pages/users/dashboard.html`), membership plan cards with choose-plan (`memberships.html`), class browsing with slot bars and book/cancel (`classes.html`), My Bookings table with empty state (`bookings.html`), profile form (`profile.html`) - all backed by the PHP API
+- PHP backend (`api/`): session login/logout, registration, plans/classes/schedules/members/reservations CRUD, transactional booking with capacity checks, profile and membership updates, dashboard stats
+- MySQL database: feature-to-table design in `database/database.md`, importable schema + seed data in `database/fitspot.sql` (6 tables, slot-usage view, demo accounts, demo bookings)
+- Feature-folder structure (`api/`, `css/`, `js/`, `images/`, `database/`, `pages/admin/`, `pages/users/`)
 
 ## Tech Stack (Current)
 
 - HTML5
 - CSS3
-- JavaScript (login demo, modals, hero carousel, admin panel, member portal)
-- MySQL 8.0 (schema, slot-usage view, and seed data ready)
-
-_Planned: a backend (PHP/Node) to connect the pages to the MySQL database for accounts, bookings, and admin CRUD._
+- JavaScript (fetch API, modals, hero carousel, admin panel, member portal)
+- PHP 8.1 + PDO (JSON API in `api/`, sessions, bcrypt password hashing)
+- MySQL 8.0 (schema, slot-usage view, seed data)
 
 ## Database
 
@@ -97,7 +114,7 @@ mysql -u root -p < database/fitspot.sql
 | `bookings` | Book/cancel reservations, upcoming bookings (5, 6, 8) |
 | `v_slot_usage` (view) | Booked/capacity counts and Open/Full status (9) |
 
-Seed data included: 2 membership plans, 5 fitness classes, 5 schedules, and the demo admin/member accounts from [Login Credentials](#login-credentials). Status: schema and seed are created - the pages are **not connected to the database yet** (still client-side demo).
+Seed data included: 2 membership plans, 5 fitness classes, 5 schedules, 4 accounts (1 admin, 3 members), 1 active/1 expired membership, and 3 demo bookings. Status: **the pages are connected to this database** through the PHP API.
 
 ## Folder Structure
 
@@ -105,6 +122,21 @@ Seed data included: 2 membership plans, 5 fitness classes, 5 schedules, and the 
 FitSpot/
 ├── index.html              # Home page (hero, plans, classes, schedule, booking)
 ├── README.md
+├── api/
+│   ├── db.php              # PDO connection, sessions, JSON helpers
+│   ├── login.php           # POST: authenticate + start session
+│   ├── logout.php          # POST: destroy session
+│   ├── register.php        # POST: create a member account (bcrypt)
+│   ├── me.php              # GET: current logged-in user (page guards)
+│   ├── plans.php           # GET public / POST, PUT, DELETE admin
+│   ├── classes.php         # GET (admin list or ?upcoming=1 with slot usage) / CRUD
+│   ├── schedules.php       # GET (?all=1 admin) / POST, DELETE
+│   ├── members.php         # GET, DELETE (admin)
+│   ├── reservations.php    # GET, POST confirm/cancel (admin)
+│   ├── bookings.php        # GET my bookings / POST book (transaction) / cancel
+│   ├── membership.php      # POST: switch my plan
+│   ├── profile.php         # GET, POST: my profile + membership
+│   └── stats.php           # GET: dashboard counters + recent reservations
 ├── css/
 │   ├── style.css            # Site styles
 │   ├── admin.css            # Admin panel styles
@@ -120,9 +152,9 @@ FitSpot/
 │   ├── kettlebellswings.jpg     # Hero carousel slide 3
 │   └── jumping.jpg              # Hero carousel slide 4
 ├── js/
-│   ├── script.js           # Login/Register popup + hero carousel logic
-│   ├── admin.js            # Admin panel logic (CRUD demo, modals, avatar menu)
-│   └── user.js             # Member portal logic (booking/cancel, demo state, profile)
+│   ├── script.js           # Login/Register, homepage live data, booking form, hero carousel
+│   ├── admin.js            # Admin panel logic (API guard, CRUD, modals, avatar menu)
+│   └── user.js             # Member portal logic (API guard, booking/cancel, plans, profile)
 └── pages/
     ├── login.html          # Standalone login / registration page
     ├── admin/

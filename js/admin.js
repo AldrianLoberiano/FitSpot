@@ -10,11 +10,24 @@ document.addEventListener('DOMContentLoaded', async function () {
             options.headers['Content-Type'] = 'application/json';
             options.body = JSON.stringify(body);
         }
-        const res = await fetch(API + file, options);
+        let res;
+        try {
+            res = await fetch(API + file, options);
+        } catch (networkError) {
+            const error = new Error('Could not reach the server.');
+            error.kind = 'network';
+            throw error;
+        }
         let data = null;
-        try { data = await res.json(); } catch (error) {}
+        try { data = await res.json(); } catch (parseError) {}
         if (!res.ok) {
-            throw new Error((data && data.error) || 'Could not reach the server.');
+            const error = new Error((data && data.error) || '');
+            error.status = res.status;
+            error.apiMessage = data && data.error ? String(data.error) : '';
+            if (res.status === 401 && error.apiMessage === 'Please log in first.') {
+                error.sessionExpired = true;
+            }
+            throw error;
         }
         return data;
     }
@@ -66,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             window.location.replace('../../index.html');
             return;
         }
-        showBanner('Not connected to the backend.' + SERVER_HINT);
+        showBanner(friendlyMessage(error, 'Unable to load this page.', SERVER_HINT));
         return;
     }
 
@@ -141,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             }
         } catch (error) {
-            showBanner('Dashboard could not be loaded.' + SERVER_HINT);
+            showBanner(friendlyMessage(error, 'Unable to load the dashboard.', SERVER_HINT));
         }
     }
 
@@ -167,7 +180,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</tr>';
             }).join('');
         } catch (error) {
-            errorRow(tbody, 4, 'Plans could not be loaded.' + SERVER_HINT);
+            errorRow(tbody, 4, friendlyMessage(error, 'Unable to load plans.', SERVER_HINT));
         }
     }
 
@@ -193,7 +206,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</tr>';
             }).join('');
         } catch (error) {
-            errorRow(tbody, 4, 'Classes could not be loaded.' + SERVER_HINT);
+            errorRow(tbody, 4, friendlyMessage(error, 'Unable to load classes.', SERVER_HINT));
         }
     }
 
@@ -224,7 +237,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</tr>';
             }).join('');
         } catch (error) {
-            errorRow(tbody, 5, 'Schedules could not be loaded.' + SERVER_HINT);
+            errorRow(tbody, 5, friendlyMessage(error, 'Unable to load schedules.', SERVER_HINT));
         }
     }
 
@@ -250,7 +263,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</tr>';
             }).join('');
         } catch (error) {
-            errorRow(tbody, 5, 'Members could not be loaded.' + SERVER_HINT);
+            errorRow(tbody, 5, friendlyMessage(error, 'Unable to load members.', SERVER_HINT));
         }
     }
 
@@ -278,7 +291,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     '</tr>';
             }).join('');
         } catch (error) {
-            errorRow(tbody, 5, 'Reservations could not be loaded.' + SERVER_HINT);
+            errorRow(tbody, 5, friendlyMessage(error, 'Unable to load reservations.', SERVER_HINT));
         }
     }
 
@@ -386,7 +399,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return { value: String(fitnessClass.id), label: fitnessClass.name };
                 });
             } catch (error) {
-                setModalMessage('Classes could not be loaded.' + SERVER_HINT, false);
+                setModalMessage(friendlyMessage(error, 'Unable to load classes.', SERVER_HINT), false);
             }
         }
 
@@ -530,12 +543,57 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
         } catch (error) {
-            setModalMessage(error.message, false);
-            toast.error('Unable to complete your request.');
+            setModalMessage(friendlyMessage(error, 'Unable to complete your request.'), false);
+            toast.error(friendlyMessage(error, 'Unable to complete your request.'));
         }
     }
 
     /* ===== actions ===== */
+
+    function confirmDialog(title, message, confirmLabel) {
+        return new Promise(function (resolve) {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay is-open';
+            overlay.id = 'confirm-modal';
+            overlay.setAttribute('aria-hidden', 'false');
+            overlay.innerHTML =
+                '<div class="modal auth-card" role="alertdialog" aria-modal="true"' +
+                ' aria-labelledby="confirm-title" aria-describedby="confirm-text">' +
+                    '<div class="modal-body">' +
+                        '<h2 id="confirm-title"></h2>' +
+                        '<p class="confirm-text" id="confirm-text"></p>' +
+                        '<div class="form-actions">' +
+                            '<button type="button" class="btn-cancel" data-confirm-no>Cancel</button>' +
+                            '<button type="button" class="btn-delete" data-confirm-yes></button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            overlay.querySelector('#confirm-title').textContent = title;
+            overlay.querySelector('#confirm-text').textContent = message;
+            overlay.querySelector('[data-confirm-yes]').textContent = confirmLabel;
+            document.body.appendChild(overlay);
+
+            function finish(result) {
+                document.removeEventListener('keydown', onKeydown, true);
+                overlay.remove();
+                resolve(result);
+            }
+
+            function onKeydown(event) {
+                if (event.key === 'Escape') finish(false);
+            }
+
+            overlay.addEventListener('click', function (event) {
+                if (event.target === overlay || event.target.closest('[data-confirm-no]')) {
+                    finish(false);
+                } else if (event.target.closest('[data-confirm-yes]')) {
+                    finish(true);
+                }
+            });
+            document.addEventListener('keydown', onKeydown, true);
+            overlay.querySelector('[data-confirm-no]').focus();
+        });
+    }
 
     async function deleteEntity(entity, id) {
         const endpoints = {
@@ -547,13 +605,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         const endpoint = endpoints[entity];
         if (!endpoint) return;
 
-        if (!window.confirm('Delete this ' + endpoint.noun + '? This cannot be undone.')) return;
+        const confirmed = await confirmDialog(
+            'Confirm Delete',
+            'Delete this ' + endpoint.noun + '? This cannot be undone.',
+            'Delete'
+        );
+        if (!confirmed) return;
 
         try {
             await apiCall('DELETE', endpoint.file, { id: id });
         } catch (error) {
-            showBanner(error.message);
-            toast.error('Unable to complete your request.');
+            showBanner(friendlyMessage(error, 'Unable to complete your request.'));
+            toast.error(friendlyMessage(error, 'Unable to complete your request.'));
             return;
         }
         showBanner('');
@@ -581,8 +644,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 button.disabled = true;
             });
         } catch (error) {
-            showBanner(error.message);
-            toast.error('Unable to complete your request.');
+            showBanner(friendlyMessage(error, 'Unable to complete your request.'));
+            toast.error(friendlyMessage(error, 'Unable to complete your request.'));
         }
     }
 

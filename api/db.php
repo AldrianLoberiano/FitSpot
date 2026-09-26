@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+/* Align PHP's clock with MySQL's (system, UTC+8) so date math agrees after midnight. */
+date_default_timezone_set('Asia/Manila');
+
 /* FitSpot API - shared bootstrap (PDO, sessions, JSON helpers). */
 
 header('Content-Type: application/json; charset=utf-8');

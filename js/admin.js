@@ -7,25 +7,9 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function () {
-    const menuButtons = document.querySelectorAll('.sidebar-menu button[data-view]');
-    const views = document.querySelectorAll('.admin-view');
-    const pageTitle = document.getElementById('admin-page-title');
-
-    menuButtons.forEach(function (button) {
-        button.addEventListener('click', function () {
-            const view = button.dataset.view;
-
-            menuButtons.forEach(function (item) {
-                item.classList.toggle('is-active', item === button);
-            });
-
-            views.forEach(function (section) {
-                section.classList.toggle('is-active', section.id === 'view-' + view);
-            });
-
-            if (pageTitle) pageTitle.textContent = button.textContent.trim();
-        });
-    });
+    /* Navigation between admin pages is handled by the sidebar links
+       (dashboard.html, memberships.html, classes.html, schedules.html,
+       members.html, reservations.html). */
 
     const modal = document.getElementById('admin-form-modal');
     const modalTitle = document.getElementById('admin-modal-title');

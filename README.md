@@ -89,10 +89,11 @@ The website is simple and manageable to develop but still has enough features fo
 - Feature-folder structure (`api/`, `css/`, `js/`, `images/`, `Database/MySQL`, `pages/admin/`, `pages/users`)
 
 ## Tech Stack (Current)
-
+Frontend
 - HTML5
 - CSS3
 - JavaScript (fetch API, modals, hero carousel, admin panel, member portal)
+Backend
 - PHP 8.1 + PDO (JSON API in `api/`, sessions, bcrypt password hashing)
 - MySQL 8.0 (schema, slot-usage view, seed data)
 

@@ -365,6 +365,12 @@
     transform: none;
 }
 
+a.btn-sm {
+    display: inline-block;
+    text-decoration: none;
+    margin-right: 6px;
+}
+
 .btn-delete {
     background-color: #fee2e2;
     color: #dc2626;

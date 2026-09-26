@@ -68,11 +68,24 @@ document.addEventListener('DOMContentLoaded', function () {
             options.headers['Content-Type'] = 'application/json';
             options.body = JSON.stringify(body);
         }
-        const res = await fetch(API + file, options);
+        let res;
+        try {
+            res = await fetch(API + file, options);
+        } catch (networkError) {
+            const error = new Error('Could not reach the server.');
+            error.kind = 'network';
+            throw error;
+        }
         let data = null;
-        try { data = await res.json(); } catch (error) {}
+        try { data = await res.json(); } catch (parseError) {}
         if (!res.ok) {
-            throw new Error((data && data.error) || 'Could not reach the server.');
+            const error = new Error((data && data.error) || '');
+            error.status = res.status;
+            error.apiMessage = data && data.error ? String(data.error) : '';
+            if (res.status === 401 && error.apiMessage === 'Please log in first.') {
+                error.sessionExpired = true;
+            }
+            throw error;
         }
         return data;
     }
@@ -98,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (error) {
                 showMessage(
                     message,
-                    error.message.indexOf('Could not reach') !== -1 ? error.message + SERVER_HINT : error.message,
+                    friendlyMessage(error, 'Unable to complete your request.', SERVER_HINT),
                     false
                 );
                 return;
@@ -164,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (error) {
                 showMessage(
                     message,
-                    error.message.indexOf('Could not reach') !== -1 ? error.message + SERVER_HINT : error.message,
+                    friendlyMessage(error, 'Unable to complete your request.', SERVER_HINT),
                     false
                 );
                 return;
@@ -216,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     '</article>';
             }).join('');
         }).catch(function (error) {
-            sectionError('membership', 'Plans could not be loaded.' + SERVER_HINT);
+            sectionError('membership', friendlyMessage(error, 'Unable to load plans.', SERVER_HINT));
         });
     }
 
@@ -235,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     '</article>';
             }).join('');
         }).catch(function (error) {
-            sectionError('classes', 'Classes could not be loaded.' + SERVER_HINT);
+            sectionError('classes', friendlyMessage(error, 'Unable to load classes.', SERVER_HINT));
         });
     }
 
@@ -255,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
             section.innerHTML = '<h2>Class Schedule</h2><ul>' +
                 (items.join('') || '<li>No upcoming classes scheduled.</li>') + '</ul>';
         }).catch(function (error) {
-            sectionError('schedule', 'Schedule could not be loaded.' + SERVER_HINT);
+            sectionError('schedule', friendlyMessage(error, 'Unable to load your schedule.', SERVER_HINT));
         });
     }
 
@@ -290,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 showMessage(document.getElementById('popup-login-message'),
                     'Log in with a member account to choose a plan.', false);
             } else {
-                showMessage(message, error.message + SERVER_HINT, false);
+                showMessage(message, friendlyMessage(error, 'Unable to complete your request.', SERVER_HINT), false);
             }
             return;
         }
@@ -302,8 +315,8 @@ document.addEventListener('DOMContentLoaded', function () {
             showMessage(message, 'Your membership is now the ' + result.plan + '.', true);
             toast.success('Membership created successfully.');
         } catch (error) {
-            showMessage(message, error.message, false);
-            toast.error('Unable to complete your request.');
+            showMessage(message, friendlyMessage(error, 'Unable to complete your request.'), false);
+            toast.error(friendlyMessage(error, 'Unable to complete your request.'));
         }
     });
 
@@ -346,8 +359,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     showMessage(document.getElementById('popup-login-message'),
                         'Log in with a member account to book a class.', false);
                 } else {
-                    showMessage(bookingMessage, error.message + SERVER_HINT, false);
-                    toast.error('Unable to complete your request.');
+                    showMessage(bookingMessage, friendlyMessage(error, 'Something went wrong while booking your class.', SERVER_HINT), false);
+                    toast.error(friendlyMessage(error, 'Something went wrong while booking your class.'));
                 }
                 return;
             }
@@ -358,8 +371,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     schedule_date: date
                 });
             } catch (error) {
-                showMessage(bookingMessage, error.message, false);
-                toast.error('Unable to complete your request.');
+                showMessage(bookingMessage, friendlyMessage(error, 'Something went wrong while booking your class.'), false);
+                toast.error(friendlyMessage(error, 'Something went wrong while booking your class.'));
                 return;
             }
 

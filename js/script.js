@@ -53,8 +53,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const ADMIN_EMAIL = 'admin@fitspot.com';
     const ADMIN_PASSWORD = 'admin123';
+    const MEMBER_EMAIL = 'member@fitspot.com';
+    const MEMBER_PASSWORD = 'member123';
 
-    function handleLogin(formId, messageId, adminPath) {
+    function handleLogin(formId, messageId, paths) {
         const form = document.getElementById(formId);
         const message = document.getElementById(messageId);
         if (!form || !message) return;
@@ -75,7 +77,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 } catch (error) {}
 
                 setTimeout(function () {
-                    window.location.href = adminPath;
+                    window.location.href = paths.admin;
+                }, 600);
+            } else if (email === MEMBER_EMAIL && password === MEMBER_PASSWORD) {
+                message.textContent = 'Login successful. Redirecting to member portal...';
+                message.classList.add('is-success');
+                message.hidden = false;
+
+                try {
+                    sessionStorage.setItem('fitspot-user', '1');
+                } catch (error) {}
+
+                setTimeout(function () {
+                    window.location.href = paths.member;
                 }, 600);
             } else {
                 message.textContent = 'Invalid email or password.';
@@ -85,8 +99,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    handleLogin('popup-login-form', 'popup-login-message', 'pages/admin/dashboard.html');
-    handleLogin('page-login-form', 'page-login-message', 'admin/dashboard.html');
+    handleLogin('popup-login-form', 'popup-login-message', {
+        admin: 'pages/admin/dashboard.html',
+        member: 'pages/users/dashboard.html'
+    });
+    handleLogin('page-login-form', 'page-login-message', {
+        admin: 'admin/dashboard.html',
+        member: 'users/dashboard.html'
+    });
 
     const carousel = document.getElementById('hero-carousel');
 

@@ -24,6 +24,7 @@
 .sidebar-brand {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     padding: 0 8px 18px;
     margin-bottom: 16px;
@@ -36,10 +37,11 @@
 }
 
 .sidebar-brand span {
+    flex-basis: 100%;
     color: #f97316;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
 }
 

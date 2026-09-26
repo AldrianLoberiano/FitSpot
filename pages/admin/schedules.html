@@ -56,10 +56,11 @@
                         <h2>Class Schedules</h2>
                         <p>Monitor slot usage to avoid overbooking</p>
                     </div>
+                    <button type="button" data-add="schedule">+ Add Schedule</button>
                 </div>
 
                 <div class="table-card">
-                    <table>
+                    <table data-entity="schedule">
                         <thead>
                             <tr>
                                 <th>Class</th>
@@ -69,42 +70,9 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="tbody-schedules">
                             <tr>
-                                <td>Zumba</td>
-                                <td>Monday | 5:00 PM</td>
-                                <td class="slot-cell">
-                                    <span class="slot-text">6 of 8 booked</span>
-                                    <div class="slot-bar"><span style="width: 75%;"></span></div>
-                                </td>
-                                <td><span class="badge badge-green">Open</span></td>
-                                <td>
-                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Yoga</td>
-                                <td>Tuesday | 6:00 PM</td>
-                                <td class="slot-cell">
-                                    <span class="slot-text">5 of 5 booked</span>
-                                    <div class="slot-bar is-full"><span style="width: 100%;"></span></div>
-                                </td>
-                                <td><span class="badge badge-red">Full</span></td>
-                                <td>
-                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Strength Training</td>
-                                <td>Wednesday | 5:00 PM</td>
-                                <td class="slot-cell">
-                                    <span class="slot-text">3 of 10 booked</span>
-                                    <div class="slot-bar"><span style="width: 30%;"></span></div>
-                                </td>
-                                <td><span class="badge badge-green">Open</span></td>
-                                <td>
-                                    <button type="button" class="btn-sm btn-delete" data-delete>Delete</button>
-                                </td>
+                                <td colspan="5">Loading class schedules...</td>
                             </tr>
                         </tbody>
                     </table>

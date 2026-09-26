@@ -63,7 +63,7 @@ The website is simple and manageable to develop but still has enough features fo
 - Header with logo on the left, centered navigation, search bar, and login button (right)
 - Sticky responsive header
 - Full-screen responsive hero with badge, headline, CTAs, and stats
-- Automatic image carousel in the hero (3 slides, dots, 3-second autoplay)
+- Automatic image carousel in the hero (4 slides, dots, 3-second autoplay)
 - Login/Register popup with branding panel and demo admin/member credentials
 - Admin panel: sidebar tabs, dashboard stats, plans/classes CRUD (client-side), schedules with slot bars, members, reservations (confirm/cancel), avatar menu (Profile, Settings, Logout)
 - Member portal (`pages/users/dashboard.html`): overview stats, membership plan cards with choose-plan demo, class browsing with slot bars, book/cancel with statuses, My Bookings table with empty state, profile form (all client-side)
@@ -92,7 +92,8 @@ FitSpot/
 │   ├── fitstop_logo_trans.png   # Logo with transparent background
 │   ├── jogging.jpg              # Hero carousel slide 1
 │   ├── rope.jpg                 # Hero carousel slide 2
-│   └── kettlebellswings.jpg     # Hero carousel slide 3
+│   ├── kettlebellswings.jpg     # Hero carousel slide 3
+│   └── jumping.jpg              # Hero carousel slide 4
 ├── js/
 │   ├── script.js           # Login/Register popup + hero carousel logic
 │   ├── admin.js            # Admin panel logic (tabs, CRUD demo)

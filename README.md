@@ -31,7 +31,7 @@ The site must be **served over HTTP** (the pages talk to a PHP API; opening `ind
 
 ```bash
 # 1. Start MySQL (Laragon) and import the database once:
-mysql -u root -p < database/fitspot.sql
+mysql -u root -p < Database/MySQL/fitspot.sql
 
 # 2. Start the PHP server from the project root (Laragon ships PHP 8.1):
 php -S localhost:8000
@@ -85,8 +85,8 @@ The website is simple and manageable to develop but still has enough features fo
 - Admin panel (one HTML file per section): sidebar links, dashboard stats (`pages/admin/dashboard.html`), plans/classes CRUD with modal forms (`memberships.html`, `classes.html`), add/delete schedules with slot bars, members, reservations (confirm/cancel), avatar menu (Profile, Settings, Logout) - all backed by the PHP API
 - Member portal (one HTML file per section): overview stats (`pages/users/dashboard.html`), membership plan cards with choose-plan (`memberships.html`), class browsing with slot bars and book/cancel (`classes.html`), My Bookings table with empty state (`bookings.html`), profile form (`profile.html`) - all backed by the PHP API
 - PHP backend (`api/`): session login/logout, registration, plans/classes/schedules/members/reservations CRUD, transactional booking with capacity checks, profile and membership updates, dashboard stats
-- MySQL database: feature-to-table design in `database/database.md`, importable schema + seed data in `database/fitspot.sql` (6 tables, slot-usage view, demo accounts, demo bookings)
-- Feature-folder structure (`api/`, `css/`, `js/`, `images/`, `database/`, `pages/admin/`, `pages/users/`)
+- MySQL database: feature-to-table design in `Database/MySQL/database.md`, importable schema + seed data in `Database/MySQL/fitspot.sql` (6 tables, slot-usage view, demo accounts, demo bookings)
+- Feature-folder structure (`api/`, `css/`, `js/`, `images/`, `Database/MySQL`, `pages/admin/`, `pages/users`)
 
 ## Tech Stack (Current)
 
@@ -98,10 +98,10 @@ The website is simple and manageable to develop but still has enough features fo
 
 ## Database
 
-Full design, queries, and the overbooking-transaction pattern are in [`database/database.md`](database/database.md). Import the ready-made file to create the `fitspot` database:
+Full design, queries, and the overbooking-transaction pattern are in [`Database/MySQL/database.md`](Database/MySQL/database.md). Import the ready-made file to create the `fitspot` database:
 
 ```bash
-mysql -u root -p < database/fitspot.sql
+mysql -u root -p < Database/MySQL/fitspot.sql
 ```
 
 | Table / View | Purpose (Feature #) |
@@ -141,9 +141,10 @@ FitSpot/
 │   ├── style.css            # Site styles
 │   ├── admin.css            # Admin panel styles
 │   └── user.css             # Member portal styles
-├── database/
-│   ├── database.md          # MySQL database design and queries
-│   └── fitspot.sql          # Ready-to-import MySQL database file (schema + seed)
+├── Database/
+│   └── MySQL/
+│       ├── database.md          # MySQL database design and queries
+│       └── fitspot.sql          # Ready-to-import MySQL database file (schema + seed)
 ├── images/
 │   ├── fitstop_white_logo.png   # Header/logo image
 │   ├── fitstop_logo_trans.png   # Logo with transparent background

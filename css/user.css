@@ -8,24 +8,6 @@
     font-size: 24px;
 }
 
-.action-note {
-    margin: 0 0 18px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    background-color: #dcfce7;
-    color: #16a34a;
-    font-size: 14px;
-}
-
-.action-note[hidden] {
-    display: none;
-}
-
-.action-note.is-error {
-    background-color: #fef2f2;
-    color: #b91c1c;
-}
-
 /* ===== MEMBERSHIP PLAN CARDS ===== */
 
 .plans-grid {
@@ -237,6 +219,36 @@
 
 .form-card .form-message {
     margin: 12px 0 0;
+}
+
+@media (max-width: 600px) {
+    .plans-grid,
+    .class-grid,
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .plan-card,
+    .class-card,
+    .form-card,
+    .empty-state {
+        padding: 18px;
+    }
+
+    .class-card-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .plan-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .plan-choose {
+        width: 100%;
+    }
 }
 
 .membership-list {

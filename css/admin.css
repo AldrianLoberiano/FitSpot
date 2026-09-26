@@ -53,7 +53,9 @@
     margin-top: 4px;
 }
 
-.sidebar-menu button {
+.sidebar-menu button,
+.sidebar-menu a {
+    display: block;
     width: 100%;
     text-align: left;
     background: none;
@@ -64,16 +66,20 @@
     font-size: 15px;
     color: #cbd5e1;
     cursor: pointer;
+    text-decoration: none;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.sidebar-menu button:hover {
+.sidebar-menu button:hover,
+.sidebar-menu a:hover {
     background-color: #1e293b;
     color: white;
     transform: none;
+    text-decoration: none;
 }
 
-.sidebar-menu button.is-active {
+.sidebar-menu button.is-active,
+.sidebar-menu a.is-active {
     background-color: #1e293b;
     color: white;
     font-weight: bold;
@@ -454,14 +460,16 @@ button:disabled {
         gap: 8px;
     }
 
-    .sidebar-menu button {
+    .sidebar-menu button,
+    .sidebar-menu a {
         width: auto;
         border-left: none;
         border-bottom: 3px solid transparent;
         padding: 10px 14px;
     }
 
-    .sidebar-menu button.is-active {
+    .sidebar-menu button.is-active,
+    .sidebar-menu a.is-active {
         border-left-color: transparent;
         border-bottom-color: transparent;
         background-color: #334155;

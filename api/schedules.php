@@ -53,8 +53,11 @@ endpoint(function () {
                 'schedule'    => schedule_label($row['schedule_date'], $row['start_time'], $row['end_time']),
                 'booked'      => $booked,
                 'capacity'    => $capacity,
+                'remaining'   => max(0, $capacity - $booked),
                 'percent'     => $capacity > 0 ? min(100, (int) round($booked / $capacity * 100)) : 0,
                 'status'      => $row['status'],
+                'status_label' => $row['status'] === 'open' ? 'Open' : 'Closed',
+                'status_color' => $row['status'] === 'open' ? 'badge-green' : 'badge-gray',
                 'slot_label'  => $full ? 'Full' : 'Open',
                 'slot_color'  => $full ? 'badge-red' : 'badge-green',
             ];
@@ -67,6 +70,31 @@ endpoint(function () {
     $input = json_in();
 
     if ($method === 'POST') {
+        if (($input['action'] ?? '') === 'toggle_status') {
+            $id = (int) ($input['id'] ?? 0);
+            if (!$id) {
+                fail('Schedule id is required.');
+            }
+
+            $stmt = db()->prepare('SELECT status FROM class_schedules WHERE id = ?');
+            $stmt->execute([$id]);
+            $schedule = $stmt->fetch();
+            if (!$schedule) {
+                fail('Schedule not found.', 404);
+            }
+
+            $status = $schedule['status'] === 'open' ? 'cancelled' : 'open';
+            $stmt = db()->prepare('UPDATE class_schedules SET status = ? WHERE id = ?');
+            $stmt->execute([$status, $id]);
+
+            json_out([
+                'id' => $id,
+                'status' => $status,
+                'status_label' => $status === 'open' ? 'Open' : 'Closed',
+                'status_color' => $status === 'open' ? 'badge-green' : 'badge-gray'
+            ]);
+        }
+
         $classId = (int) ($input['class_id'] ?? 0);
         $date = post_value($input, 'schedule_date');
         $start = post_value($input, 'start_time');
@@ -103,7 +131,11 @@ endpoint(function () {
         if (!$id) {
             fail('Schedule id is required.');
         }
-        db()->prepare('DELETE FROM class_schedules WHERE id = ?')->execute([$id]);
+        $stmt = db()->prepare('DELETE FROM class_schedules WHERE id = ?');
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 0) {
+            fail('Schedule not found.', 404);
+        }
         json_out(['id' => $id]);
     }
 

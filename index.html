@@ -146,7 +146,7 @@
 <section id="booking">
     <h2>Book a Class</h2>
 
-    <form>
+    <form id="booking-form">
         <label for="name">Full Name:</label>
         <input type="text" id="name" name="name" autocomplete="name">
 
@@ -161,6 +161,8 @@
         <input type="date" id="date" name="date">
 
         <button type="submit">Book Class</button>
+
+        <p class="form-message" id="booking-form-message" hidden></p>
     </form>
 
 </section>
@@ -217,7 +219,7 @@
         <div class="modal-body">
             <h2 id="register-popup-title">Register</h2>
 
-            <form>
+            <form id="popup-register-form">
                 <label for="popup-name">Full Name:</label>
                 <input type="text" id="popup-name" name="popup-name" autocomplete="name">
 
@@ -231,6 +233,8 @@
                 <input type="password" id="popup-confirm-password" name="popup-confirm-password" autocomplete="new-password">
 
                 <button type="submit">Register</button>
+
+                <p class="form-message" id="popup-register-message" hidden></p>
             </form>
 
             <p class="card-note">Already have an account? <a href="#login-popup" class="modal-switch">Login</a></p>

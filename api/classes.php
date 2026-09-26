@@ -158,7 +158,11 @@ endpoint(function () {
         if (!$id) {
             fail('Class id is required.');
         }
-        db()->prepare('DELETE FROM fitness_classes WHERE id = ?')->execute([$id]);
+        $stmt = db()->prepare('DELETE FROM fitness_classes WHERE id = ?');
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 0) {
+            fail('Class not found.', 404);
+        }
         json_out(['id' => $id]);
     }
 

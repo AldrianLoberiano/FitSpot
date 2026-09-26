@@ -468,6 +468,13 @@ button:disabled {
     transform: none;
 }
 
+.modal .confirm-text {
+    margin-bottom: 16px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
 /* ===== ADMIN RESPONSIVE ===== */
 
 @media (max-width: 900px) {

@@ -39,13 +39,8 @@
     flex-direction: column;
     background-color: white;
     border-radius: 15px;
-    border-top: 4px solid #e2e8f0;
     padding: 25px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.plan-card.is-current {
-    border-top-color: #f97316;
 }
 
 .plan-card h3 {

@@ -521,6 +521,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 currentUser.phone = values.phone;
                 if (avatar) avatar.textContent = initials(currentUser.full_name);
                 setModalMessage('Profile updated successfully.', true);
+                toast.success('Profile updated successfully.');
                 return;
             }
 
@@ -530,6 +531,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         } catch (error) {
             setModalMessage(error.message, false);
+            toast.error('Unable to complete your request.');
         }
     }
 
@@ -551,6 +553,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             await apiCall('DELETE', endpoint.file, { id: id });
         } catch (error) {
             showBanner(error.message);
+            toast.error('Unable to complete your request.');
             return;
         }
         showBanner('');
@@ -579,6 +582,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
         } catch (error) {
             showBanner(error.message);
+            toast.error('Unable to complete your request.');
         }
     }
 

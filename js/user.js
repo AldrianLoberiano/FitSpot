@@ -218,7 +218,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     button = '<button type="button" class="btn-book" disabled>Class Full</button>';
                 } else {
                     button = '<button type="button" class="btn-book" data-book="' + slot.schedule_id +
-                        '" data-name="' + esc(slot.name) + '">Book Class</button>';
+                        '" data-name="' + esc(slot.name) + '" data-remaining="' + slot.remaining +
+                        '">Book Class</button>';
                 }
 
                 return '' +
@@ -249,6 +250,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const bookedNote = params.get('booked');
         if (bookedNote) {
             showNote('booking-note', 'Booking request sent for ' + bookedNote + '. Awaiting confirmation.', false);
+            toast.success('Booking confirmed successfully.');
             history.replaceState({}, '', window.location.pathname);
         }
 
@@ -367,6 +369,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             button.disabled = true;
 
+            if (Number(button.dataset.remaining) <= 1) {
+                toast.warning('This class is almost full.');
+            }
+
             try {
                 await apiCall('POST', 'bookings.php', {
                     schedule_id: Number(button.dataset.book)
@@ -374,10 +380,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             } catch (error) {
                 button.disabled = false;
                 showNote('class-note', error.message, true);
+                toast.error('Unable to complete your request.');
                 return;
             }
 
-            window.location.href = 'bookings.html?booked=' + encodeURIComponent(button.dataset.name);
+            window.setTimeout(function () {
+                window.location.href = 'bookings.html?booked=' + encodeURIComponent(button.dataset.name);
+            }, 700);
         });
     }
 
@@ -394,6 +403,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 await apiCall('POST', 'bookings.php', { id: bookingId, action: 'cancel' });
             } catch (error) {
                 showNote('booking-note', error.message, true);
+                toast.error('Unable to complete your request.');
                 return;
             }
 
@@ -419,10 +429,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                     plan_id: Number(button.dataset.planId)
                 });
                 showNote('plan-note', 'Your membership is now the ' + result.plan + '.', false);
+                toast.success('Membership created successfully.');
                 await loadPlansPage();
             } catch (error) {
                 button.disabled = false;
                 showNote('plan-note', error.message, true);
+                toast.error('Unable to complete your request.');
             }
         });
     }
@@ -451,6 +463,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     message.classList.remove('is-success');
                     message.hidden = false;
                 }
+                toast.error('Unable to complete your request.');
                 return;
             }
 
@@ -465,6 +478,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 message.classList.add('is-success');
                 message.hidden = false;
             }
+            toast.success('Profile updated successfully.');
         });
     }
 
